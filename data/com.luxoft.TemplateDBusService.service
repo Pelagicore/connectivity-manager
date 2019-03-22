@@ -1,0 +1,5 @@
+[D-BUS Service]
+Name=com.luxoft.TemplateDBusService
+Exec=/bin/false
+User=root
+SystemdService=template-dbus-service.service

@@ -1,0 +1,4 @@
+option('foo',
+       type : 'boolean',
+       value : false,
+       description : 'Description for this boolean build option.')
