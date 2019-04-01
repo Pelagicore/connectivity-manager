@@ -29,7 +29,7 @@ namespace TemplateDBusService::Daemon
 
         try {
             context.parse(argc, argv);
-        } catch (Glib::Error &error) {
+        } catch (const Glib::Error &error) {
             output << Glib::get_prgname() << ": " << error.what() << '\n';
             return {};
         }
