@@ -12,7 +12,6 @@
 #include <clocale>
 #include <cstdlib>
 #include <iostream>
-#include <memory>
 
 #include "common/version.h"
 #include "config.h"
