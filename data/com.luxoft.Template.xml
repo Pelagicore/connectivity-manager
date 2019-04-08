@@ -2,7 +2,7 @@
  "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
  "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
 <node>
-  <interface name="com.luxoft.TemplateDBusService">
+  <interface name="com.luxoft.Template">
     <method name="RemoveMeFoo">
       <arg name="number" type="u" direction="in"/>
       <arg name="is_odd" type="b" direction="out"/>

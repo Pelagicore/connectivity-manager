@@ -48,7 +48,7 @@ namespace TemplateDBusService::Daemon
     void DBusService::bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connection,
                                    const Glib::ustring & /*name*/)
     {
-        if (service_.register_object(connection, Common::DBus::TEMPLATE_OBJECT_PATH) == 0)
+        if (template_.register_object(connection, Common::DBus::TEMPLATE_OBJECT_PATH) == 0)
             main_loop_->quit();
     }
 
@@ -65,19 +65,19 @@ namespace TemplateDBusService::Daemon
         main_loop_->quit();
     }
 
-    void DBusService::Service::RemoveMeFoo(guint32 number, MethodInvocation &invocation)
+    void DBusService::Template::RemoveMeFoo(guint32 number, MethodInvocation &invocation)
     {
         bool is_odd = (number % 2) != 0;
         invocation.ret(is_odd);
     }
 
-    bool DBusService::Service::RemoveMeBaz_setHandler(bool value)
+    bool DBusService::Template::RemoveMeBaz_setHandler(bool value)
     {
         remove_me_baz_ = value;
         return true;
     }
 
-    bool DBusService::Service::RemoveMeBaz_get()
+    bool DBusService::Template::RemoveMeBaz_get()
     {
         return remove_me_baz_;
     }

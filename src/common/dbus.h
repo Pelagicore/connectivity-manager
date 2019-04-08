@@ -14,8 +14,8 @@ namespace TemplateDBusService::Common
     class DBus
     {
     public:
-        static constexpr char TEMPLATE_SERVICE_NAME[] = "com.luxoft.TemplateDBusService";
-        static constexpr char TEMPLATE_OBJECT_PATH[] = "/com/luxoft/TemplateDBusService";
+        static constexpr char TEMPLATE_SERVICE_NAME[] = "com.luxoft.Template";
+        static constexpr char TEMPLATE_OBJECT_PATH[] = "/com/luxoft/Template";
     };
 }
 

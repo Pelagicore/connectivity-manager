@@ -11,8 +11,8 @@
 
 #include <glibmm.h>
 
-#include "generated/dbus/template_dbus_service_common.h"
-#include "generated/dbus/template_dbus_service_stub.h"
+#include "generated/dbus/template_common.h"
+#include "generated/dbus/template_stub.h"
 
 namespace TemplateDBusService::Daemon
 {
@@ -31,7 +31,7 @@ namespace TemplateDBusService::Daemon
         void unown_name();
 
     private:
-        class Service : public com::luxoft::TemplateDBusServiceStub
+        class Template : public com::luxoft::TemplateStub
         {
         public:
             void RemoveMeFoo(guint32 number, MethodInvocation &invocation) override;
@@ -53,7 +53,7 @@ namespace TemplateDBusService::Daemon
         Glib::RefPtr<Glib::MainLoop> main_loop_;
         guint connection_id_ = 0;
 
-        Service service_;
+        Template template_;
     };
 }
 

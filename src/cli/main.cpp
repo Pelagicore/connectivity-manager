@@ -15,7 +15,7 @@
 
 #include "common/dbus.h"
 #include "common/version.h"
-#include "generated/dbus/template_dbus_service_proxy.h"
+#include "generated/dbus/template_proxy.h"
 
 // Just a simple example of how to create a proxy and call a method in the service and shows use of
 // libcommon.a. Note that *_sync() versions of the proxy methods are used below. This should only be
@@ -23,7 +23,7 @@
 
 namespace
 {
-    using Proxy = com::luxoft::TemplateDBusServiceProxy;
+    using Proxy = com::luxoft::TemplateProxy;
 }
 
 int main(int /*argc*/, char * /*argv*/ [])
