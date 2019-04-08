@@ -16,11 +16,11 @@
 
 namespace TemplateDBusService::Daemon
 {
-    class DBusService final : private com::luxoft::TemplateDBusServiceStub
+    class DBusService
     {
     public:
         explicit DBusService(const Glib::RefPtr<Glib::MainLoop> &main_loop);
-        ~DBusService() final;
+        ~DBusService();
 
         DBusService(const DBusService &other) = delete;
         DBusService(DBusService &&other) = delete;
@@ -31,6 +31,18 @@ namespace TemplateDBusService::Daemon
         void unown_name();
 
     private:
+        class Service : public com::luxoft::TemplateDBusServiceStub
+        {
+        public:
+            void RemoveMeFoo(guint32 number, MethodInvocation &invocation) override;
+
+            bool RemoveMeBaz_setHandler(bool value) override;
+            bool RemoveMeBaz_get() override;
+
+        private:
+            bool remove_me_baz_ = false;
+        };
+
         void bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connection,
                           const Glib::ustring &name);
         void name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connection,
@@ -38,18 +50,10 @@ namespace TemplateDBusService::Daemon
         void name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connection,
                        const Glib::ustring &name);
 
-        void RemoveMeFoo(guint32 number, MethodInvocation &invocation) override;
-
-        bool RemoveMeBaz_setHandler(bool value) override;
-        bool RemoveMeBaz_get() override;
-
         Glib::RefPtr<Glib::MainLoop> main_loop_;
         guint connection_id_ = 0;
 
-        struct
-        {
-            bool baz = false;
-        } remove_me_;
+        Service service_;
     };
 }
 
