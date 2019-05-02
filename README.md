@@ -1,6 +1,6 @@
-# Template D-Bus service
+# Connectivity Manager
 
-Template for creating a D-Bus service component.
+D-Bus service for managing connectivity.
 
 # Dependencies
 

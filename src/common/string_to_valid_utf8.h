@@ -6,12 +6,16 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-#ifndef CONNECTIVITY_MANAGER_COMMON_VERSION_H
-#define CONNECTIVITY_MANAGER_COMMON_VERSION_H
+#ifndef CONNECTIVITY_MANAGER_COMMON_STRING_TO_VALID_UTF8_H
+#define CONNECTIVITY_MANAGER_COMMON_STRING_TO_VALID_UTF8_H
+
+#include <glibmm.h>
+
+#include <string>
 
 namespace ConnectivityManager::Common
 {
-    static constexpr char VERSION[] = "@VCS_TAG@";
+    Glib::ustring string_to_valid_utf8(const std::string &str);
 }
 
-#endif // CONNECTIVITY_MANAGER_COMMON_VERSION_H
+#endif // CONNECTIVITY_MANAGER_COMMON_STRING_TO_VALID_UTF8_H

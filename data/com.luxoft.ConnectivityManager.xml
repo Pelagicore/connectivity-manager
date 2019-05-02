@@ -1,0 +1,192 @@
+<!DOCTYPE node PUBLIC
+ "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+ "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<!-- TODO: Note that API should not be considered stable yet and is still
+     subject to change. Should go through all TODOs before removing this note. -->
+<node>
+  <interface name="com.luxoft.ConnectivityManager">
+    <!--
+        Connect:
+        @object: Object path of object to connect.
+        @input_agent: Object path of UserInputAgent for handling potential input
+            requests from user. See com.luxoft.ConnectivityManager.UserInputAgent.
+
+        @object can be a path to:
+        - A WiFiAccessPoint. Obtained by introspecting the WiFiAccessPoints
+          property.
+
+        Does not return until @object has been connected or an error has
+        occurred. Makes it possible for client to know when it can stop
+        listening for UserInputAgent requests.
+
+        Since Connect() can involve waiting for user input, a suitable timeout
+        that takes this into account should be used for this method call.
+    -->
+    <method name="Connect">
+      <arg name="object" type="o" direction="in"/>
+      <arg name="user_input_agent" type="o" direction="in"/>
+    </method>
+
+    <!--
+        Disconnect:
+        @object: Path of object to disconnect
+
+        See Connect() for possible values of @object.
+
+        @object has not necessarily finished disconnecting when this method
+        returns. Connection state is always available through some other API.
+        E.g. Wi-Fi access points has a boolean property called "Connected" that
+        can be monitored for connection status.
+    -->
+    <method name="Disconnect">
+      <arg name="object" type="o" direction="in"/>
+    </method>
+
+    <!--
+        Wi-Fi available or not.
+
+        Set to true if there is Wi-Fi on the system and the hardware is not
+        disabled.
+    -->
+    <property name="WiFiAvailable" type="b" access="read"/>
+
+    <!--
+        Wi-Fi enabled or not.
+
+        It is an error to set WiFiEnabled to true if WiFiAvailable is not true.
+    -->
+    <property name="WiFiEnabled" type="b" access="readwrite"/>
+
+    <!--
+        List of Wi-Fi access point object paths.
+
+        Objects implement com.luxoft.ConnectivityManager.WiFiAccessPoint, see
+        below.
+
+        TODO: Currently not sorted. Probably should be. See TODO in
+              src/daemon/dbus_service.cpp:wifi_access_point_paths_sorted().
+    -->
+    <property name="WiFiAccessPoints" type="ao" access="read"/>
+
+    <!--
+        Wi-Fi hotspot enabled or not.
+
+        It is an error to set WiFiHotspotEnabled to true if WiFiAvailable is
+        not true.
+    -->
+    <property name="WiFiHotspotEnabled" type="b" access="readwrite"/>
+
+    <!--
+        Wi-Fi hotspot SSID.
+
+        It is an error to set WiFiHotspotSSID if WiFiAvailable is not true.
+    -->
+    <property name="WiFiHotspotSSID" type="ay" access="readwrite"/>
+
+    <!--
+        Wi-Fi hotspot passphrase.
+
+        It is an error to set WiFiHotspotPassphrase if WiFiAvailable is not
+        true.
+    -->
+    <property name="WiFiHotspotPassphrase" type="s" access="readwrite"/>
+  </interface>
+
+  <!--
+      Interface for clients to implement that want to call Connect() in
+      com.luxoft.ConnectivityManager.
+
+      Used to e.g. prompt user for password when connecting to a wireless
+      access point.
+    -->
+  <interface name="com.luxoft.ConnectivityManager.UserInputAgent">
+    <!--
+        RequestCredentials:
+        @description_type: Description of type of network request is for. Will
+            be one of the following strings:
+            - "network"
+            - "wireless network"
+            - "hidden wireless network"
+            If request is shown to user in a translatable UI these strings
+            should be mapped to the user's language.
+        @description_id: Description identifier of what request is for. E.g.
+            this will be an SSID when requesting credentials for a Wi-Fi
+            network. Will be an empty string if no suitable identifier can be
+            provided.
+        @requested: Dict of what is requested, potentially with old values if
+            any exist so they can be displayed to user.
+        @response: Dict of what user responded, values copied from @requested
+            if no response for a particular item.
+
+        @requested and @response are dictionaries. The key in each entry is a
+        string that specifies the meaning and type of the value variant
+        according to the following:
+
+        "ssid"
+            SSID. Value type: ay
+            Requested when trying to connect to a hidden Wi-Fi network. Byte
+            array since SSID:s are not necessarily in UTF-8.
+
+        "username"
+            Username/Identity. Value type: s
+            Requested when e.g. connecting to Wi-Fi networks with 802.1x/EAP
+            authentication.
+
+        "password"
+            Password/Passphrase/Key/Pin. Value type: (ss)
+            Requested when connecting to e.g. a secure Wi-Fi network. Value is a
+            struct with a string specifying password type, see below, and a
+            string with the password itself.
+
+            Password type  Meaning
+            "passphrase"   Passphrase (for e.g. 802.1x/EAP authentication).
+            "wpa_psk"      WPA PSK
+            "wep_key"      WEP key
+            "wps_pin       WPS pin
+
+        "password_alternative"
+            Password alternative. Value type: (ss)
+            Alternative password. See table in "password" for password types.
+            Used when e.g. WPS is supported as an alternative choice to WPA. In
+            @requested both "password" and "password_alternative" can be
+            specified to indicate that there is a choice. In @response only
+            "password" should be set to indicate user's choice, password
+            alternative will be ignored.
+
+        RequestCredentials() will be called as a result of a client calling
+        Connect(). Once Connect() has returned the client can stop exposing the
+        UserInputAgent object on the bus. If Connect() returns while a
+        RequestCredentials() call is pending, there is no longer any need to
+        prompt the user and the return value of RequestCredentials() will be
+        ignored.
+    -->
+    <method name="RequestCredentials">
+      <arg name="description_type" type="s" direction="in"/>
+      <arg name="description_id" type="s" direction="in"/>
+      <arg name="requested" type="a{sv}" direction="in"/>
+      <arg name="response" type="a{sv}" direction="out"/>
+    </method>
+  </interface>
+
+  <!--
+      Interface for Wi-Fi access points implemented by objects in
+      WiFiAccessPoints property.
+
+      TODO: Replace "Connected" with "State" (type="s")? If yes, check
+            NetworkManager and ConnMan for what makes sense. What do we
+            want/need? Enough with "disconnected", "connecting", "connected"?
+            Enough with UI calling Connect() to indicate within itself that
+            it is connecting until Connect() returns and only have this boolean
+            to show marker in AP list ("State" superfluous)? If so, leave as is
+            and just remove this TODO.
+
+      TODO: Add a "Security" (type="s") property for wireless security. Check
+            NetworkManager and ConnMan for what makes sense.
+  -->
+  <interface name="com.luxoft.ConnectivityManager.WiFiAccessPoint">
+    <property name="SSID" type="ay" access="read"/>
+    <property name="Strength" type="y" access="read"/> <!-- Range: 0-100 -->
+    <property name="Connected" type="b" access="read"/>
+  </interface>
+
+</node>

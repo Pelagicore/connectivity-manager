@@ -6,15 +6,16 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-#ifndef TEMPLATE_DBUS_SERVICE_CONFIG_H
-#define TEMPLATE_DBUS_SERVICE_CONFIG_H
+#ifndef CONNECTIVITY_MANAGER_CONFIG_H
+#define CONNECTIVITY_MANAGER_CONFIG_H
 
 // Disable formatting since @ can be used in *.in files and it confuses
 // clang-format. No complex formatting in this file anyway.
 // clang-format off
 
-#mesondefine TEMPLATE_DBUS_SERVICE_FOO
+#define CONNECTIVITY_MANAGER_BACKEND_CONNMAN 1
+#define CONNECTIVITY_MANAGER_BACKEND CONNECTIVITY_MANAGER_BACKEND_@backend@
 
 // clang-format on
 
-#endif // TEMPLATE_DBUS_SERVICE_CONFIG_H
+#endif // CONNECTIVITY_MANAGER_CONFIG_H

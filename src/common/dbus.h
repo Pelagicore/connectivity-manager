@@ -6,17 +6,17 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-#ifndef TEMPLATE_DBUS_SERVICE_COMMON_DBUS_H
-#define TEMPLATE_DBUS_SERVICE_COMMON_DBUS_H
+#ifndef CONNECTIVITY_MANAGER_COMMON_DBUS_H
+#define CONNECTIVITY_MANAGER_COMMON_DBUS_H
 
-namespace TemplateDBusService::Common
+namespace ConnectivityManager::Common
 {
     class DBus
     {
     public:
-        static constexpr char TEMPLATE_SERVICE_NAME[] = "com.luxoft.Template";
-        static constexpr char TEMPLATE_OBJECT_PATH[] = "/com/luxoft/Template";
+        static constexpr char MANAGER_SERVICE_NAME[] = "com.luxoft.ConnectivityManager";
+        static constexpr char MANAGER_OBJECT_PATH[] = "/com/luxoft/ConnectivityManager";
     };
 }
 
-#endif // TEMPLATE_DBUS_SERVICE_COMMON_DBUS_H
+#endif // CONNECTIVITY_MANAGER_COMMON_DBUS_H

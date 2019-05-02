@@ -1,7 +1,0 @@
-[Unit]
-Description=Template D-Bus service
-
-[Service]
-Type=dbus
-BusName=com.luxoft.Template
-ExecStart=@bindir@/template-dbus-service

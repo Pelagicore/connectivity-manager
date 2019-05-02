@@ -10,7 +10,7 @@
 
 #include <glibmm.h>
 
-namespace TemplateDBusService::Daemon
+namespace ConnectivityManager::Daemon
 {
     std::optional<Arguments> Arguments::parse(int argc, char *argv[], std::ostream &output)
     {

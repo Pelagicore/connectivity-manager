@@ -15,8 +15,9 @@
 #include <cassert>
 #include <csignal>
 #include <cstddef>
+#include <utility>
 
-namespace TemplateDBusService::Daemon
+namespace ConnectivityManager::Daemon
 {
     namespace
     {
@@ -31,6 +32,13 @@ namespace TemplateDBusService::Daemon
             static_cast<Daemon *>(daemon)->reload_config();
             return G_SOURCE_CONTINUE;
         }
+    }
+
+    Daemon::Daemon(std::unique_ptr<Backend> &&backend) :
+        backend_(std::move(backend)),
+        dbus_service_(main_loop_, *backend_)
+    {
+        backend_->signals().critical_error.connect([&] { main_loop_->quit(); });
     }
 
     Daemon::~Daemon()

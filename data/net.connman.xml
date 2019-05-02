@@ -1,0 +1,101 @@
+<!DOCTYPE node PUBLIC
+ "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+ "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<!--
+    ConnMan does not install an interface file in $(datadir)/dbus-1/interfaces
+    and there is no interface XML in the ConnMan Git repository. Need to
+    specify it ourselves. Should normally not be done. Have only added parts of
+    interfaces that are used.
+
+    ConnMan also does not use the standard org.freedesktop.DBus.Properties
+    interface for properties which makes property handling a bit awkward.
+-->
+<node>
+  <!-- See doc/manager-api.txt in the ConnMan repo. -->
+  <interface name="net.connman.Manager">
+    <method name="GetTechnologies">
+      <arg name="technologies" type="a(oa{sv})" direction="out"/>
+    </method>
+
+    <method name="GetServices">
+      <arg name="services" type="a(oa{sv})" direction="out"/>
+    </method>
+
+    <method name="RegisterAgent">
+      <arg name="path" type="o" direction="in"/>
+    </method>
+
+    <method name="UnregisterAgent">
+      <arg name="path" type="o" direction="in"/>
+    </method>
+
+    <signal name="TechnologyAdded">
+      <arg name="path" type="o"/>
+      <arg name="properties" type="a{sv}"/>
+    </signal>
+
+    <signal name="TechnologyRemoved">
+      <arg name="path" type="o"/>
+    </signal>
+
+    <signal name="ServicesChanged">
+      <arg name="changed" type="a(oa{sv})"/>
+      <arg name="removed" type="ao"/>
+    </signal>
+  </interface>
+
+  <!-- See doc/technology-api.txt in the ConnMan repo. -->
+  <interface name="net.connman.Technology">
+    <method name="SetProperty">
+      <arg name="name" type="s" direction="in"/>
+      <arg name="value" type="v" direction="in"/>
+    </method>
+
+    <method name="Scan"/>
+
+    <signal name="PropertyChanged">
+      <arg name="name" type="s"/>
+      <arg name="value" type="v"/>
+    </signal>
+  </interface>
+
+  <!-- See doc/service-api.txt in the ConnMan repo. -->
+  <interface name="net.connman.Service">
+    <method name="SetProperty">
+      <arg name="name" type="s" direction="in"/>
+      <arg name="value" type="v" direction="in"/>
+    </method>
+
+    <method name="Connect"/>
+
+    <method name="Disconnect"/>
+
+    <signal name="PropertyChanged">
+      <arg name="name" type="s"/>
+      <arg name="value" type="v"/>
+    </signal>
+  </interface>
+
+  <!-- See doc/agent-api.txt in the ConnMan repo. -->
+  <interface name="net.connman.Agent">
+    <method name="Release"/>
+
+    <method name="ReportError">
+      <arg name="service" type="o" direction="in"/>
+      <arg name="error" type="s" direction="in"/>
+    </method>
+
+    <method name="RequestBrowser">
+      <arg name="service" type="o" direction="in"/>
+      <arg name="url" type="s" direction="in"/>
+    </method>
+
+    <method name="RequestInput">
+      <arg name="service" type="o" direction="in"/>
+      <arg name="fields" type="a{sv}" direction="in"/>
+      <arg name="values" type="a{sv}" direction="out"/>
+    </method>
+
+    <method name="Cancel"/>
+  </interface>
+</node>

@@ -6,12 +6,16 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-#ifndef CONNECTIVITY_MANAGER_COMMON_VERSION_H
-#define CONNECTIVITY_MANAGER_COMMON_VERSION_H
+#ifndef CONNECTIVITY_MANAGER_COMMON_STRING_TO_UINT64_H
+#define CONNECTIVITY_MANAGER_COMMON_STRING_TO_UINT64_H
+
+#include <cstdint>
+#include <optional>
+#include <string>
 
 namespace ConnectivityManager::Common
 {
-    static constexpr char VERSION[] = "@VCS_TAG@";
+    std::optional<std::uint64_t> string_to_uint64(const std::string &str);
 }
 
-#endif // CONNECTIVITY_MANAGER_COMMON_VERSION_H
+#endif // CONNECTIVITY_MANAGER_COMMON_STRING_TO_UINT64_H

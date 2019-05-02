@@ -1,4 +1,4 @@
-option('foo',
-       type : 'boolean',
-       value : false,
-       description : 'Description for this boolean build option.')
+option('connectivity_backend', # connectivity_ prefix since 'backend' is reserved.
+       type : 'combo',
+       choices : ['connman'], value : 'connman',
+       description : 'Backend to use.')

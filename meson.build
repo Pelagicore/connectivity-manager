@@ -1,4 +1,4 @@
-project('template-dbus-service', 'cpp',
+project('connectivity-manager', 'cpp',
     version : '0.1.0',
     meson_version : '>=0.45',
     default_options : [

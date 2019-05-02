@@ -1,0 +1,7 @@
+[Unit]
+Description=Connectivity Manager
+
+[Service]
+Type=dbus
+BusName=com.luxoft.ConnectivityManager
+ExecStart=@bindir@/connectivity-manager

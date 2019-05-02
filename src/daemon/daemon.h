@@ -6,22 +6,23 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-#ifndef TEMPLATE_DBUS_SERVICE_DAEMON_DAEMON_H
-#define TEMPLATE_DBUS_SERVICE_DAEMON_DAEMON_H
+#ifndef CONNECTIVITY_MANAGER_DAEMON_DAEMON_H
+#define CONNECTIVITY_MANAGER_DAEMON_DAEMON_H
 
 #include <glibmm.h>
 
 #include <memory>
 #include <string>
 
+#include "daemon/backend.h"
 #include "daemon/dbus_service.h"
 
-namespace TemplateDBusService::Daemon
+namespace ConnectivityManager::Daemon
 {
     class Daemon
     {
     public:
-        Daemon() = default;
+        explicit Daemon(std::unique_ptr<Backend> &&backend);
         ~Daemon();
 
         Daemon(const Daemon &other) = delete;
@@ -44,8 +45,10 @@ namespace TemplateDBusService::Daemon
         guint sigterm_source_id_ = 0;
         guint sighup_source_id_ = 0;
 
-        DBusService dbus_service_{main_loop_};
+        std::unique_ptr<Backend> backend_;
+
+        DBusService dbus_service_;
     };
 }
 
-#endif // TEMPLATE_DBUS_SERVICE_DAEMON_DAEMON_H
+#endif // CONNECTIVITY_MANAGER_DAEMON_DAEMON_H

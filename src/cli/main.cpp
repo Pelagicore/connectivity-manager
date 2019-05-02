@@ -12,50 +12,48 @@
 #include <clocale>
 #include <cstdlib>
 #include <iostream>
+#include <optional>
 
+#include "cli/arguments.h"
 #include "common/dbus.h"
 #include "common/version.h"
-#include "generated/dbus/template_proxy.h"
-
-// Just a simple example of how to create a proxy and call a method in the service and shows use of
-// libcommon.a. Note that *_sync() versions of the proxy methods are used below. This should only be
-// done if it is OK to block for a very long time. Usually that is the case in a cli application.
+#include "generated/dbus/connectivity_manager_proxy.h"
 
 namespace
 {
-    // using Arguments = TemplateDBusService::Cli::Arguments;
-    using Proxy = com::luxoft::TemplateProxy;
+    using Arguments = ConnectivityManager::Cli::Arguments;
+    using ManagerProxy = com::luxoft::ConnectivityManagerProxy;
 }
 
-int main(int /*argc*/, char * /*argv*/ [])
+int main(int argc, char *argv[])
 {
     std::setlocale(LC_ALL, "");
 
     Glib::init();
     Gio::init();
 
-    // Do some argument parsing here. E.g. nice to have a --version for both service and client.
-    // std::optional<Arguments> arguments = Arguments::parse(argc, argv);
-    // if (!arguments)
-    //     return EXIT_FAILURE;
-    //
-    // if (arguments->print_version_and_exit) {
-    //     std::cout << Glib::get_prgname() << " " << TemplateDBusService::Common::VERSION << '\n';
-    //     return EXIT_SUCCESS;
-    // }
+    std::optional<Arguments> arguments = Arguments::parse(argc, argv, std::cout);
+    if (!arguments)
+        return EXIT_FAILURE;
 
-    Glib::RefPtr<Proxy> proxy =
-        Proxy::createForBus_sync(Gio::DBus::BUS_TYPE_SYSTEM,
-                                 Gio::DBus::PROXY_FLAGS_NONE,
-                                 TemplateDBusService::Common::DBus::TEMPLATE_SERVICE_NAME,
-                                 TemplateDBusService::Common::DBus::TEMPLATE_OBJECT_PATH);
+    if (arguments->print_version_and_exit) {
+        std::cout << Glib::get_prgname() << " " << ConnectivityManager::Common::VERSION << '\n';
+        return EXIT_SUCCESS;
+    }
 
-    if (proxy->dbusProxy()->get_name_owner().empty()) {
-        std::cout << "Service not available, quitting.\n";
+    Glib::RefPtr<ManagerProxy> manager_proxy =
+        ManagerProxy::createForBus_sync(Gio::DBus::BUS_TYPE_SYSTEM,
+                                        Gio::DBus::PROXY_FLAGS_NONE,
+                                        ConnectivityManager::Common::DBus::MANAGER_SERVICE_NAME,
+                                        ConnectivityManager::Common::DBus::MANAGER_OBJECT_PATH);
+
+    if (manager_proxy->dbusProxy()->get_name_owner().empty()) {
+        std::cout << "Manager not available, quitting.\n";
         return EXIT_FAILURE;
     }
 
-    std::cout << "Service method returned: " << proxy->RemoveMeFoo_sync(123) << '\n';
+    if (!arguments->command->invoke(manager_proxy))
+        return EXIT_FAILURE;
 
     return EXIT_SUCCESS;
 }

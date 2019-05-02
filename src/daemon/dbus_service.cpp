@@ -11,17 +11,24 @@
 #include <giomm.h>
 #include <glibmm.h>
 
+#include <cassert>
+#include <memory>
+
 #include "common/dbus.h"
 
-namespace TemplateDBusService::Daemon
+namespace ConnectivityManager::Daemon
 {
-    DBusService::DBusService(const Glib::RefPtr<Glib::MainLoop> &main_loop) : main_loop_(main_loop)
+    DBusService::DBusService(const Glib::RefPtr<Glib::MainLoop> &main_loop, Backend &backend) :
+        main_loop_(main_loop),
+        backend_(backend),
+        manager_(backend)
     {
     }
 
     DBusService::~DBusService()
     {
         unown_name();
+        wifi_access_points_throttle_set_property_timeout_.disconnect();
     }
 
     void DBusService::own_name()
@@ -30,7 +37,7 @@ namespace TemplateDBusService::Daemon
             return;
 
         connection_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SYSTEM,
-                                             Common::DBus::TEMPLATE_SERVICE_NAME,
+                                             Common::DBus::MANAGER_SERVICE_NAME,
                                              sigc::mem_fun(*this, &DBusService::bus_acquired),
                                              sigc::mem_fun(*this, &DBusService::name_acquired),
                                              sigc::mem_fun(*this, &DBusService::name_lost));
@@ -41,6 +48,8 @@ namespace TemplateDBusService::Daemon
         if (connection_id_ == 0)
             return;
 
+        backend_signal_handler_.reset();
+
         Gio::DBus::unown_name(connection_id_);
         connection_id_ = 0;
     }
@@ -48,8 +57,21 @@ namespace TemplateDBusService::Daemon
     void DBusService::bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connection,
                                    const Glib::ustring & /*name*/)
     {
-        if (template_.register_object(connection, Common::DBus::TEMPLATE_OBJECT_PATH) == 0)
+        connection_ = connection;
+
+        backend_signal_handler_.emplace(*this);
+
+        if (!wifi_access_points_create_all_and_register_on_bus()) {
             main_loop_->quit();
+            return;
+        }
+
+        manager_.sync_with_backend(wifi_access_point_paths_sorted());
+
+        if (manager_.register_object(connection_, Common::DBus::MANAGER_OBJECT_PATH) == 0) {
+            main_loop_->quit();
+            return;
+        }
     }
 
     void DBusService::name_acquired(const Glib::RefPtr<Gio::DBus::Connection> & /*connection*/,
@@ -65,20 +87,149 @@ namespace TemplateDBusService::Daemon
         main_loop_->quit();
     }
 
-    void DBusService::Template::RemoveMeFoo(guint32 number, MethodInvocation &invocation)
+    bool DBusService::wifi_access_points_create_all_and_register_on_bus()
     {
-        bool is_odd = (number % 2) != 0;
-        invocation.ret(is_odd);
+        assert(connection_);
+
+        wifi_access_points_.clear();
+
+        for (const auto &[id, backend_ap] : backend_.state().wifi.access_points)
+            wifi_access_points_.emplace(id, std::make_unique<WiFiAccessPoint>(backend_ap));
+
+        bool all_registered = true;
+
+        for (const auto &key_value : wifi_access_points_)
+            if (!key_value.second->register_object(connection_))
+                all_registered = false;
+
+        return all_registered;
     }
 
-    bool DBusService::Template::RemoveMeBaz_setHandler(bool value)
+    void DBusService::wifi_access_points_changed()
     {
-        remove_me_baz_ = value;
-        return true;
+        constexpr unsigned int DELAY_SECONDS = 1;
+        constexpr bool REPEAT = false;
+
+        if (wifi_access_points_throttle_set_property_timeout_.connected())
+            return;
+
+        wifi_access_points_throttle_set_property_timeout_ = Glib::signal_timeout().connect_seconds(
+            [&] {
+                manager_.WiFiAccessPoints_set(wifi_access_point_paths_sorted());
+                return REPEAT;
+            },
+            DELAY_SECONDS);
     }
 
-    bool DBusService::Template::RemoveMeBaz_get()
+    std::vector<Glib::DBusObjectPathString> DBusService::wifi_access_point_paths_sorted() const
     {
-        return remove_me_baz_;
+        std::vector<Glib::DBusObjectPathString> paths;
+
+        for (const auto &key_value : wifi_access_points_)
+            paths.emplace_back(key_value.second->object_path());
+
+        // TODO: Sorted in order suitable to present to user, by strength etc.
+        //
+        // Stored in std::map with id as key so paths are sorted by id now.
+        //
+        // Have "std::vector<WiFiAccessPoint::Id> wifi.access_points_sorted" in Backend::State (or
+        // pointers to elements in wifi.access_points, elements will not move). If in Backend it
+        // will be easier to test. Could also add a "SORTED_CHANGED" entry in
+        // Backend::WiFiAccessPoint::Event and only call DBusService::wifi_access_points_changed()
+        // when that event is received instead of listening to all events that may change order
+        // (prevents abstraction leak... if logic changes, e.g. another field affects order, one
+        // would have to listen to extra events outside of Backend, better with explicit "sort order
+        // changed" event).
+        //
+        // If sorting should be handled in DBusService, wifi_access_points_changed() must be called
+        // on more Backend::WiFiAccessPoint::Event:s than now. But, leaning towards handling sorting
+        // in Backend as mentioned above so unit tests can be added for it more easily.
+
+        return paths;
+    }
+
+    DBusService::BackendSignalHandler::BackendSignalHandler(DBusService &service) :
+        service_(service)
+    {
+        Backend::Signals &signals = service_.backend_.signals();
+
+        signals.wifi.status_changed.connect(
+            sigc::mem_fun(*this, &BackendSignalHandler::wifi_status_changed));
+
+        signals.wifi.access_points_changed.connect(
+            sigc::mem_fun(*this, &BackendSignalHandler::wifi_access_points_changed));
+
+        signals.wifi.hotspot_status_changed.connect(
+            sigc::mem_fun(*this, &BackendSignalHandler::wifi_hotspot_status_changed));
+
+        signals.wifi.hotspot_ssid_changed.connect(
+            sigc::mem_fun(*this, &BackendSignalHandler::wifi_hotspot_ssid_changed));
+
+        signals.wifi.hotspot_passphrase_changed.connect(
+            sigc::mem_fun(*this, &BackendSignalHandler::wifi_hotspot_passphrase_changed));
+    }
+
+    void DBusService::BackendSignalHandler::wifi_status_changed(Backend::WiFiStatus status) const
+    {
+        service_.manager_.WiFiAvailable_set(status != Backend::WiFiStatus::UNAVAILABLE);
+        service_.manager_.WiFiEnabled_set(status == Backend::WiFiStatus::ENABLED);
+    }
+
+    void DBusService::BackendSignalHandler::wifi_access_points_changed(
+        Backend::WiFiAccessPoint::Event event,
+        const Backend::WiFiAccessPoint *access_point) const
+    {
+        switch (event) {
+        case Backend::WiFiAccessPoint::Event::ADDED_ALL:
+            service_.wifi_access_points_create_all_and_register_on_bus();
+            service_.wifi_access_points_changed();
+            break;
+
+        case Backend::WiFiAccessPoint::Event::REMOVED_ALL:
+            service_.wifi_access_points_.clear();
+            service_.wifi_access_points_changed();
+            break;
+
+        case Backend::WiFiAccessPoint::Event::ADDED_ONE:
+            service_.wifi_access_points_.emplace(access_point->id,
+                                                 std::make_unique<WiFiAccessPoint>(*access_point));
+            service_.wifi_access_points_[access_point->id]->register_object(service_.connection_);
+            service_.wifi_access_points_changed();
+            break;
+
+        case Backend::WiFiAccessPoint::Event::REMOVED_ONE:
+            service_.wifi_access_points_.erase(access_point->id);
+            service_.wifi_access_points_changed();
+            break;
+
+        case Backend::WiFiAccessPoint::Event::SSID_CHANGED:
+            service_.wifi_access_points_[access_point->id]->SSID_set(access_point->ssid);
+            break;
+
+        case Backend::WiFiAccessPoint::Event::STRENGTH_CHANGED:
+            service_.wifi_access_points_[access_point->id]->Strength_set(access_point->strength);
+            break;
+
+        case Backend::WiFiAccessPoint::Event::CONNECTED_CHANGED:
+            service_.wifi_access_points_[access_point->id]->Connected_set(access_point->connected);
+            break;
+        }
+    }
+
+    void DBusService::BackendSignalHandler::wifi_hotspot_status_changed(
+        Backend::WiFiHotspotStatus status) const
+    {
+        service_.manager_.WiFiHotspotEnabled_set(status == Backend::WiFiHotspotStatus::ENABLED);
+    }
+
+    void DBusService::BackendSignalHandler::wifi_hotspot_ssid_changed(const std::string &ssid) const
+    {
+        service_.manager_.WiFiHotspotSSID_set(ssid);
+    }
+
+    void DBusService::BackendSignalHandler::wifi_hotspot_passphrase_changed(
+        const Glib::ustring &passphrase) const
+    {
+        service_.manager_.WiFiHotspotPassphrase_set(passphrase);
     }
 }

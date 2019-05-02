@@ -6,20 +6,23 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-#ifndef CONNECTIVITY_MANAGER_DAEMON_ARGUMENTS_H
-#define CONNECTIVITY_MANAGER_DAEMON_ARGUMENTS_H
+#ifndef CONNECTIVITY_MANAGER_CLI_ARGUMENTS_H
+#define CONNECTIVITY_MANAGER_CLI_ARGUMENTS_H
 
 #include <optional>
 #include <ostream>
 
-namespace ConnectivityManager::Daemon
+#include "cli/command.h"
+
+namespace ConnectivityManager::Cli
 {
     struct Arguments
     {
         static std::optional<Arguments> parse(int argc, char *argv[], std::ostream &output);
 
         bool print_version_and_exit = false;
+        Command *command = nullptr;
     };
 }
 
-#endif // CONNECTIVITY_MANAGER_DAEMON_ARGUMENTS_H
+#endif // CONNECTIVITY_MANAGER_CLI_ARGUMENTS_H
