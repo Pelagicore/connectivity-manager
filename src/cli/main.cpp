@@ -23,6 +23,7 @@
 
 namespace
 {
+    // using Arguments = TemplateDBusService::Cli::Arguments;
     using Proxy = com::luxoft::TemplateProxy;
 }
 
@@ -34,7 +35,7 @@ int main(int /*argc*/, char * /*argv*/ [])
     Gio::init();
 
     // Do some argument parsing here. E.g. nice to have a --version for both service and client.
-    // auto arguments = TemplateDBusService::Cli::Arguments::parse(argc, argv);
+    // std::optional<Arguments> arguments = Arguments::parse(argc, argv);
     // if (!arguments)
     //     return EXIT_FAILURE;
     //

@@ -12,11 +12,18 @@
 #include <clocale>
 #include <cstdlib>
 #include <iostream>
+#include <optional>
 
 #include "common/version.h"
 #include "config.h"
 #include "daemon/arguments.h"
 #include "daemon/daemon.h"
+
+namespace
+{
+    using Arguments = TemplateDBusService::Daemon::Arguments;
+    using Daemon = TemplateDBusService::Daemon::Daemon;
+}
 
 int main(int argc, char *argv[])
 {
@@ -25,7 +32,7 @@ int main(int argc, char *argv[])
     Glib::init();
     Gio::init();
 
-    auto arguments = TemplateDBusService::Daemon::Arguments::parse(argc, argv, std::cout);
+    std::optional<Arguments> arguments = Arguments::parse(argc, argv, std::cout);
     if (!arguments)
         return EXIT_FAILURE;
 
@@ -38,7 +45,7 @@ int main(int argc, char *argv[])
     g_message("Using feature FOO. REMOVE ME!");
 #endif
 
-    TemplateDBusService::Daemon::Daemon daemon;
+    Daemon daemon;
 
     return daemon.run();
 }
