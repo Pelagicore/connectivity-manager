@@ -4,6 +4,13 @@
 <!-- TODO: Note that API should not be considered stable yet and is still
      subject to change. Should go through all TODOs before removing this note. -->
 <node>
+  <!--
+      Main interface for Connectivity Manager.
+
+      Used to control and retrieve information of all supported technologies,
+      e.g. Wi-Fi connectivity. API goals are ease-of-use and to provide unique
+      functionality to be used in an automotive context.
+  -->
   <interface name="com.luxoft.ConnectivityManager">
     <!--
         Connect:
