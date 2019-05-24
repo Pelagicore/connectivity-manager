@@ -27,7 +27,7 @@ namespace
     gboolean sigint_callback(void *main_loop)
     {
         static_cast<Glib::MainLoop *>(main_loop)->quit();
-        return G_SOURCE_REMOVE;
+        return G_SOURCE_CONTINUE;
     }
 }
 
