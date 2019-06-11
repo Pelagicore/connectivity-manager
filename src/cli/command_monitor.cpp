@@ -12,6 +12,7 @@
 #include <glib-unix.h>
 #include <glibmm.h>
 
+#include <csignal>
 #include <iostream>
 #include <string>
 
