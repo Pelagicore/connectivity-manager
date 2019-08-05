@@ -23,6 +23,19 @@ node("Component") {
     }
 
     image.inside {
+        stage("Build for Host") {
+            sh 'meson -Dwerror=true build'
+            sh 'ninja -C build'
+        }
+
+        stage("Tests on Host") {
+            sh 'meson test -C build --print-errorlogs'
+        }
+
+        stage("Check Source") {
+            sh 'tools/check . build'
+        }
+
         stage("Download Raspberry Pi SDK") {
             sh '''
             wget https://pelux.io/jenkins/job/pelux-manifests_NIGHTLY_rpi-qtauto/lastSuccessfulBuild/artifact/artifacts_rpi-qtauto/pelux-glibc-x86_64-core-image-pelux-qtauto-neptune-dev-cortexa7t2hf-neon-vfpv4-toolchain-*.sh/*zip*/artifacts_rpi-qtauto.zip
@@ -40,9 +53,8 @@ node("Component") {
         stage("Build with Raspberry Pi SDK") {
             sh '''
             source ~/opt/pelux-sdk-x86_64/environment-setup-cortexa7t2hf-neon-vfpv4-pelux-linux-gnueabi
-            meson build
-            cd build
-            ninja
+            meson build_rpi
+            ninja -C build_rpi
             '''
         }
     }

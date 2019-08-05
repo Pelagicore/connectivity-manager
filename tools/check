@@ -1,0 +1,43 @@
+#!/bin/sh
+#
+# Copyright (C) 2019 Martin Ejdestig <marejde@gmail.com>
+# Copyright (C) 2019 Luxoft Sweden AB
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+# SPDX-License-Identifier: MPL-2.0
+
+# Long term the clang-format and clang-tidy checks should be replaced by Meson
+# targets. There already is a clang-format target but it modifies code, want a
+# target that only checks. See https://github.com/mesonbuild/meson/issues/2383
+# for status of clang-tidy target.
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <root_dir> <build_dir_in_root_dir>"
+    exit 1
+fi
+
+root_dir=$1
+build_dir=$2
+
+set -e
+cd $root_dir
+
+# clang-format
+find $(ls -d include src 2>/dev/null) -name "*.[ch]*" | while read f; do
+    echo "clang-format $f"
+    clang-format "$f" | diff -up "$f" -
+done
+
+# clang-tidy
+ct_tmp_file=$(mktemp)
+run-clang-tidy -p "$build_dir" -header-filter='^../include/|^../src/' -extra-arg=-Wno-unknown-warning-option -- "$(pwd)/src/" | tee $ct_tmp_file
+ct_warning_error_count=$(grep --count -i "warning: \|error: " $ct_tmp_file || true)
+rm $ct_tmp_file
+
+if [[ -z $ct_warning_error_count || $ct_warning_error_count -gt 0 ]]; then
+    echo "clang-tidy failed, $ct_warning_error_count warnings/errors in non-system code."
+    exit 1
+fi
