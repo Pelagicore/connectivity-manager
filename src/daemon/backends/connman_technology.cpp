@@ -37,14 +37,17 @@ namespace ConnectivityManager::Daemon
 
         ConnManTechnology::Type type_from_string(const Glib::ustring &str)
         {
-            if (str == TYPE_STR_BLUETOOTH)
+            if (str == TYPE_STR_BLUETOOTH) {
                 return ConnManTechnology::Type::BLUETOOTH;
+            }
 
-            if (str == TYPE_STR_ETHERNET)
+            if (str == TYPE_STR_ETHERNET) {
                 return ConnManTechnology::Type::ETHERNET;
+            }
 
-            if (str == TYPE_STR_WIFI)
+            if (str == TYPE_STR_WIFI) {
                 return ConnManTechnology::Type::WIFI;
+            }
 
             return ConnManTechnology::Type::UNKNOWN;
         }
@@ -84,8 +87,9 @@ namespace ConnectivityManager::Daemon
                                   const T &default_value)
         {
             auto i = properties.find(name);
-            if (i == properties.cend())
+            if (i == properties.cend()) {
                 return default_value;
+            }
 
             return value_from_variant<T>(i->second, name).value_or(default_value);
         }
@@ -147,8 +151,9 @@ namespace ConnectivityManager::Daemon
                                              const Glib::VariantBase &value)
     {
         auto changed = [this](auto &property, PropertyId id, auto received) {
-            if (!received || property == *received)
+            if (!received || property == *received) {
                 return;
+            }
 
             property = std::move(*received);
             listener_.technology_property_changed(*this, id);
@@ -252,11 +257,13 @@ namespace ConnectivityManager::Daemon
     template <typename V>
     const V &ConnManTechnology::SettableProperty<V>::value() const
     {
-        if (queued_)
+        if (queued_) {
             return *queued_;
+        }
 
-        if (pending_)
+        if (pending_) {
             return *pending_;
+        }
 
         return value_;
     }
@@ -264,8 +271,9 @@ namespace ConnectivityManager::Daemon
     template <typename V>
     void ConnManTechnology::SettableProperty<V>::set(const V &new_value)
     {
-        if (value() == new_value)
+        if (value() == new_value) {
             return;
+        }
 
         if (!pending_) {
             pending_ = new_value;
@@ -281,8 +289,9 @@ namespace ConnectivityManager::Daemon
     void ConnManTechnology::SettableProperty<V>::changed(const Glib::VariantBase &received_variant)
     {
         auto received = value_from_variant<V>(received_variant, name_);
-        if (!received)
+        if (!received) {
             return;
+        }
 
         if (pending_) {
             received_ = std::move(*received);
@@ -317,8 +326,9 @@ namespace ConnectivityManager::Daemon
                       e.what().c_str());
         }
 
-        if (success)
+        if (success) {
             value_ = std::move(*pending_);
+        }
         pending_.reset();
 
         if (queued_) {
@@ -339,8 +349,9 @@ namespace ConnectivityManager::Daemon
                 received_.reset();
             }
 
-            if (signal_reverted_due_to_failure || changed_while_pending)
+            if (signal_reverted_due_to_failure || changed_while_pending) {
                 technology_.listener_.technology_property_changed(technology_, id_);
+            }
         }
     }
 }

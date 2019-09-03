@@ -54,8 +54,9 @@ namespace ConnectivityManager::Daemon
         const Glib::DBusObjectPathString &path)
     {
         Glib::ustring prefix = object_path_prefix();
-        if (path.compare(0, prefix.size(), prefix) != 0)
+        if (path.compare(0, prefix.size(), prefix) != 0) {
             return {};
+        }
 
         Glib::ustring id_str = path.substr(prefix.size());
 

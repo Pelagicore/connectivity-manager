@@ -71,8 +71,9 @@ namespace ConnectivityManager::Daemon
             return;
         }
 
-        for (const auto &[path, properties] : array)
+        for (const auto &[path, properties] : array) {
             listener_.manager_technology_add(path, properties);
+        }
     }
 
     void ConnManManager::technology_added(const Glib::DBusObjectPathString &path,
@@ -97,19 +98,22 @@ namespace ConnectivityManager::Daemon
             return;
         }
 
-        for (const auto &[path, properties] : array)
+        for (const auto &[path, properties] : array) {
             listener_.manager_service_add_or_change(path, properties);
+        }
     }
 
     void ConnManManager::services_changed(
         const ServicePropertiesArray &changed,
         const std::vector<Glib::DBusObjectPathString> &removed) const
     {
-        for (const auto &[path, properties] : changed)
+        for (const auto &[path, properties] : changed) {
             listener_.manager_service_add_or_change(path, properties);
+        }
 
-        for (const auto &path : removed)
+        for (const auto &path : removed) {
             listener_.manager_service_remove(path);
+        }
     }
 
     void ConnManManager::register_agent(const ConnManAgent &agent)

@@ -40,20 +40,27 @@ namespace ConnectivityManager::Cli
             "  disable-hotspot Disable Wi-Fi hotspot";
 
         auto parse_subcommand = [&](const Glib::ustring &str) {
-            if (str == "enable")
+            if (str == "enable") {
                 return Subcommand::ENABLE;
-            if (str == "disable")
+            }
+            if (str == "disable") {
                 return Subcommand::DISABLE;
-            if (str == "status")
+            }
+            if (str == "status") {
                 return Subcommand::STATUS;
-            if (str == "connect")
+            }
+            if (str == "connect") {
                 return Subcommand::CONNECT;
-            if (str == "disconnect")
+            }
+            if (str == "disconnect") {
                 return Subcommand::DISCONNECT;
-            if (str == "enable-hotspot")
+            }
+            if (str == "enable-hotspot") {
                 return Subcommand::ENABLE_HOTSPOT;
-            if (str == "disable-hotspot")
+            }
+            if (str == "disable-hotspot") {
                 return Subcommand::DISABLE_HOTSPOT;
+            }
 
             output << Glib::get_prgname() << ": unknown command: \"" << str << "\"\n";
             return Subcommand::NONE;
@@ -66,8 +73,9 @@ namespace ConnectivityManager::Cli
             }
 
             arguments_.subcommand = parse_subcommand(remaining[0]);
-            if (arguments_.subcommand == Subcommand::NONE)
+            if (arguments_.subcommand == Subcommand::NONE) {
                 return false;
+            }
 
             if (remaining.size() > 1) {
                 output << Glib::get_prgname() << ": unknown argument: \"" << remaining[1] << "\"\n";
@@ -139,8 +147,9 @@ namespace ConnectivityManager::Cli
             return false;
         }
 
-        if (!parse_remaining(remaining))
+        if (!parse_remaining(remaining)) {
             return false;
+        }
 
         return verify_arguments();
     }
@@ -246,8 +255,9 @@ namespace ConnectivityManager::Cli
         }
 
         auto connection = manager_proxy()->dbusProxy()->get_connection();
-        if (!InputHandler::instance().register_user_input_agent(connection))
+        if (!InputHandler::instance().register_user_input_agent(connection)) {
             return false;
+        }
 
         bool result = false;
         auto connect_finish = [&](const Glib::RefPtr<Gio::AsyncResult> &async_result) {
@@ -298,11 +308,13 @@ namespace ConnectivityManager::Cli
     bool CommandWiFi::enable_hotspot() const
     {
         try {
-            if (!arguments_.ssid.empty())
+            if (!arguments_.ssid.empty()) {
                 manager_proxy()->WiFiHotspotSSID_set_sync(arguments_.ssid);
+            }
 
-            if (!arguments_.passphrase.empty())
+            if (!arguments_.passphrase.empty()) {
                 manager_proxy()->WiFiHotspotPassphrase_set_sync(arguments_.passphrase);
+            }
 
             manager_proxy()->WiFiHotspotEnabled_set_sync(true);
         } catch (const Glib::Error &e) {
@@ -343,9 +355,11 @@ namespace ConnectivityManager::Cli
     Glib::RefPtr<CommandWiFi::AccessPointProxy> CommandWiFi::access_point_proxy_with_ssid(
         const std::string &ssid) const
     {
-        for (const auto &proxy : access_point_proxies())
-            if (ssid == proxy->SSID_get())
+        for (const auto &proxy : access_point_proxies()) {
+            if (ssid == proxy->SSID_get()) {
                 return proxy;
+            }
+        }
 
         return {};
     }

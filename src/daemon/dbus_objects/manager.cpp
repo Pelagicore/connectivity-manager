@@ -101,19 +101,21 @@ namespace ConnectivityManager::Daemon
 
     bool Manager::WiFiEnabled_setHandler(bool value)
     {
-        if (value && !backend_.wifi_available())
+        if (value && !backend_.wifi_available()) {
             throw Gio::DBus::Error(
                 Gio::DBus::Error::FAILED,
                 "Unable to set WiFiEnabled property to true, WiFi not available");
+        }
 
         bool changed = wifi_.enabled != value;
         wifi_.enabled = value;
 
         if (wifi_.enabled != backend_.wifi_enabled()) {
-            if (wifi_.enabled)
+            if (wifi_.enabled) {
                 backend_.wifi_enable();
-            else
+            } else {
                 backend_.wifi_disable();
+            }
         }
 
         return changed;
@@ -139,19 +141,21 @@ namespace ConnectivityManager::Daemon
 
     bool Manager::WiFiHotspotEnabled_setHandler(bool value)
     {
-        if (value && !backend_.wifi_available())
+        if (value && !backend_.wifi_available()) {
             throw Gio::DBus::Error(
                 Gio::DBus::Error::FAILED,
                 "Unable to set WiFiHotspotEnabled property to true, WiFi not available");
+        }
 
         bool changed = wifi_.hotspot_enabled != value;
         wifi_.hotspot_enabled = value;
 
         if (wifi_.hotspot_enabled != backend_.wifi_hotspot_enabled()) {
-            if (wifi_.hotspot_enabled)
+            if (wifi_.hotspot_enabled) {
                 backend_.wifi_hotspot_enable();
-            else
+            } else {
                 backend_.wifi_hotspot_disable();
+            }
         }
 
         return changed;
@@ -164,15 +168,17 @@ namespace ConnectivityManager::Daemon
 
     bool Manager::WiFiHotspotSSID_setHandler(const std::string &value)
     {
-        if (!backend_.wifi_available())
+        if (!backend_.wifi_available()) {
             throw Gio::DBus::Error(Gio::DBus::Error::FAILED,
                                    "Unable to set WiFiHotspotSSID property, WiFi not available");
+        }
 
         bool changed = wifi_.hotspot_ssid != value;
         wifi_.hotspot_ssid = value;
 
-        if (backend_.state().wifi.hotspot_ssid != value)
+        if (backend_.state().wifi.hotspot_ssid != value) {
             backend_.wifi_hotspot_change_ssid(value);
+        }
 
         return changed;
     }
@@ -184,16 +190,18 @@ namespace ConnectivityManager::Daemon
 
     bool Manager::WiFiHotspotPassphrase_setHandler(const Glib::ustring &value)
     {
-        if (!backend_.wifi_available())
+        if (!backend_.wifi_available()) {
             throw Gio::DBus::Error(
                 Gio::DBus::Error::FAILED,
                 "Unable to set WiFiHotspotPassphrase property, WiFi not available");
+        }
 
         bool changed = wifi_.hotspot_passphrase != value;
         wifi_.hotspot_passphrase = value;
 
-        if (backend_.state().wifi.hotspot_passphrase != value)
+        if (backend_.state().wifi.hotspot_passphrase != value) {
             backend_.wifi_hotspot_change_passphrase(value);
+        }
 
         return changed;
     }
@@ -207,14 +215,16 @@ namespace ConnectivityManager::Daemon
         const Glib::DBusObjectPathString &path) const
     {
         auto id = WiFiAccessPoint::object_path_to_id(path);
-        if (!id)
+        if (!id) {
             return nullptr;
+        }
 
         const auto &access_points = backend_.state().wifi.access_points;
 
         auto i = access_points.find(*id);
-        if (i == access_points.cend())
+        if (i == access_points.cend()) {
             return nullptr;
+        }
 
         return &i->second;
     }
@@ -260,14 +270,16 @@ namespace ConnectivityManager::Daemon
                                             Backend::ConnectResult result)
     {
         PendingConnect *pending = find(object);
-        if (!pending)
+        if (!pending) {
             return;
+        }
 
-        if (result == Backend::ConnectResult::SUCCESS)
+        if (result == Backend::ConnectResult::SUCCESS) {
             pending->invocation->ret();
-        else
+        } else {
             pending->invocation->ret(
                 Gio::DBus::Error(Gio::DBus::Error::FAILED, "Failed to connect to " + object));
+        }
 
         if (pending->credentials_reply) {
             pending->credentials_reply(Common::Credentials::NONE);
@@ -304,8 +316,9 @@ namespace ConnectivityManager::Daemon
         const Glib::DBusObjectPathString &object)
     {
         PendingConnect *pending = find(object);
-        if (!pending)
+        if (!pending) {
             return;
+        }
 
         pending->user_input_agent_path.clear();
     }
@@ -325,8 +338,9 @@ namespace ConnectivityManager::Daemon
         }
 
         PendingConnect *pending = find(object);
-        if (!pending)
+        if (!pending) {
             return;
+        }
 
         if (!proxy) {
             if (pending->credentials_reply) {
@@ -363,12 +377,14 @@ namespace ConnectivityManager::Daemon
         }
 
         PendingConnect *pending = find(object);
-        if (!pending || !pending->credentials_reply)
+        if (!pending || !pending->credentials_reply) {
             return;
+        }
 
         std::optional<Common::Credentials> reply;
-        if (!dbus_value.empty())
+        if (!dbus_value.empty()) {
             reply = Common::Credentials::from_dbus_value(dbus_value);
+        }
 
         pending->credentials_reply(reply);
         pending->credentials_reply = nullptr;

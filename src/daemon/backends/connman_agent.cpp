@@ -70,8 +70,9 @@ namespace ConnectivityManager::Daemon
                                       const Glib::ustring &default_value)
         {
             auto i = arguments.find(name);
-            if (i == arguments.cend())
+            if (i == arguments.cend()) {
                 return default_value;
+            }
 
             const Glib::VariantBase &variant = i->second;
 
@@ -137,8 +138,9 @@ namespace ConnectivityManager::Daemon
             for (const auto &[name, arguments_variant] : received_fields) {
                 std::optional<Arguments> arguments =
                     arguments_from_variant(name, arguments_variant);
-                if (!arguments)
+                if (!arguments) {
                     return {};
+                }
 
                 if (name == FIELD_NAME_HIDDEN_SSID_UTF8 || name == FIELD_NAME_HIDDEN_SSID) {
                     credentials.ssid = argument_lookup(*arguments, FIELD_ARGUMENT_VALUE, "");
@@ -160,14 +162,14 @@ namespace ConnectivityManager::Daemon
                         return {};
                     }
                     credentials.password = arguments_to_password(name, *arguments);
-                    if (!credentials.password)
+                    if (!credentials.password) {
                         return {};
-
+                    }
                 } else if (name == FIELD_NAME_PREVIOUS_PASSPHRASE) {
                     previous_password = arguments_to_password(name, *arguments);
-                    if (!previous_password)
+                    if (!previous_password) {
                         return {};
-
+                    }
                 } else if (name == FIELD_NAME_WPS) {
                     credentials.password_alternative = arguments_to_password(name, *arguments);
 
@@ -205,13 +207,14 @@ namespace ConnectivityManager::Daemon
                 }
 
                 if (credentials.password->type == previous_password->type) {
-                    if (credentials.password->value.empty())
+                    if (credentials.password->value.empty()) {
                         credentials.password->value = previous_password->value;
-
+                    }
                 } else if (credentials.password_alternative &&
                            credentials.password_alternative->type == previous_password->type) {
-                    if (credentials.password_alternative->value.empty())
+                    if (credentials.password_alternative->value.empty()) {
                         credentials.password->value = previous_password->value;
+                    }
                 }
             }
 
@@ -262,21 +265,23 @@ namespace ConnectivityManager::Daemon
             }
 
             if (credentials.username) {
-                if (was_requested(FIELD_NAME_EAP_USERNAME))
+                if (was_requested(FIELD_NAME_EAP_USERNAME)) {
                     add_string_reply(FIELD_NAME_EAP_USERNAME, *credentials.username);
-                else if (was_requested(FIELD_NAME_WISPR_USERNAME))
+                } else if (was_requested(FIELD_NAME_WISPR_USERNAME)) {
                     add_string_reply(FIELD_NAME_WISPR_USERNAME, *credentials.username);
+                }
             }
 
             if (credentials.password) {
                 bool wps_reply = credentials.password->type == Password::Type::WPS_PIN &&
                                  was_requested(FIELD_NAME_WPS);
-                if (wps_reply)
+                if (wps_reply) {
                     add_string_reply(FIELD_NAME_WPS, credentials.password->value);
-                else if (was_requested(FIELD_NAME_PASSPHRASE))
+                } else if (was_requested(FIELD_NAME_PASSPHRASE)) {
                     add_string_reply(FIELD_NAME_PASSPHRASE, credentials.password->value);
-                else if (was_requested(FIELD_NAME_WISPR_PASSWORD))
+                } else if (was_requested(FIELD_NAME_WISPR_PASSWORD)) {
                     add_string_reply(FIELD_NAME_WISPR_PASSWORD, credentials.password->value);
+                }
             }
 
             return fields;
@@ -337,11 +342,12 @@ namespace ConnectivityManager::Daemon
 
         Backend::RequestCredentialsFromUserReply reply_callback =
             [fields, invocation](const std::optional<Common::Credentials> &result) mutable {
-                if (result)
+                if (result) {
                     invocation.ret(credentials_to_reply_fields(*result, fields));
-                else
+                } else {
                     invocation.ret(Gio::DBus::Error(Gio::DBus::Error::FAILED,
                                                     "Failed to request credentials"));
+                }
             };
 
         listener_.agent_request_input(service, std::move(*credentials), std::move(reply_callback));

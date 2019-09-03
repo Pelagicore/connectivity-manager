@@ -48,8 +48,9 @@ namespace ConnectivityManager::Common
                                                                    const Glib::ustring &value_name)
         {
             auto dbus_value = value_from_variant<PasswordDBusValue>(variant, value_name);
-            if (!dbus_value)
+            if (!dbus_value) {
                 return {};
+            }
 
             Credentials::Password password;
             const Glib::ustring &type_str = std::get<0>(*dbus_value);
@@ -108,24 +109,24 @@ namespace ConnectivityManager::Common
         for (const auto &[type, variant] : dbus_value) {
             if (type == VALUE_TYPE_SSID_STR) {
                 credentials.ssid = value_from_variant<std::string>(variant, type);
-                if (!credentials.ssid)
+                if (!credentials.ssid) {
                     return {};
-
+                }
             } else if (type == VALUE_TYPE_USERNAME_STR) {
                 credentials.username = value_from_variant<Glib::ustring>(variant, type);
-                if (!credentials.username)
+                if (!credentials.username) {
                     return {};
-
+                }
             } else if (type == VALUE_TYPE_PASSWORD_STR) {
                 credentials.password = password_from_variant(variant, type);
-                if (!credentials.password)
+                if (!credentials.password) {
                     return {};
-
+                }
             } else if (type == VALUE_TYPE_PASSWORD_ALTERNATIVE_STR) {
                 credentials.password_alternative = password_from_variant(variant, type);
-                if (!credentials.password_alternative)
+                if (!credentials.password_alternative) {
                     return {};
-
+                }
             } else {
                 g_warning("Unknown value type \"%s\" in credentials D-Bus value", type.c_str());
                 return {};
@@ -139,20 +140,24 @@ namespace ConnectivityManager::Common
     {
         DBusValue dbus_value;
 
-        if (credentials.ssid)
+        if (credentials.ssid) {
             dbus_value.emplace(VALUE_TYPE_SSID_STR,
                                Glib::Variant<std::string>::create(*credentials.ssid));
+        }
 
-        if (credentials.username)
+        if (credentials.username) {
             dbus_value.emplace(VALUE_TYPE_USERNAME_STR,
                                Glib::Variant<Glib::ustring>::create(*credentials.username));
+        }
 
-        if (credentials.password)
+        if (credentials.password) {
             dbus_value.emplace(VALUE_TYPE_PASSWORD_STR, password_to_variant(*credentials.password));
+        }
 
-        if (credentials.password_alternative)
+        if (credentials.password_alternative) {
             dbus_value.emplace(VALUE_TYPE_PASSWORD_ALTERNATIVE_STR,
                                password_to_variant(*credentials.password_alternative));
+        }
 
         return dbus_value;
     }

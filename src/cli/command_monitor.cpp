@@ -70,8 +70,9 @@ namespace ConnectivityManager::Cli
 
     bool CommandMonitor::invoke()
     {
-        if (arguments_.initial_state)
+        if (arguments_.initial_state) {
             print_initial_state();
+        }
 
         connect_signals();
 

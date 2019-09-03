@@ -35,9 +35,11 @@ namespace ConnectivityManager::Cli
 
         Command *get_command(const std::string &name)
         {
-            for (auto &command : commands())
-                if (command->name() == name)
+            for (auto &command : commands()) {
+                if (command->name() == name) {
                     return command.get();
+                }
+            }
 
             return nullptr;
         }
@@ -52,8 +54,9 @@ namespace ConnectivityManager::Cli
                 summary += std::string(DESCRIPTION_ALIGNMENT - command->name().length(), ' ');
                 summary += command->description();
 
-                if (command != commands().back())
+                if (command != commands().back()) {
                     summary += "\n";
+                }
             }
 
             return summary;
@@ -92,8 +95,9 @@ namespace ConnectivityManager::Cli
             return {};
         }
 
-        if (arguments.print_version_and_exit)
+        if (arguments.print_version_and_exit) {
             return arguments;
+        }
 
         if (argc < 2) {
             output << Glib::get_prgname() << ": missing command\n";
@@ -109,8 +113,9 @@ namespace ConnectivityManager::Cli
 
         include_command_name_in_program_name(arguments.command);
 
-        if (!arguments.command->parse_arguments(argc - 1, argv + 1, output))
+        if (!arguments.command->parse_arguments(argc - 1, argv + 1, output)) {
             return {};
+        }
 
         return arguments;
     }

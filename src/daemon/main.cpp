@@ -34,8 +34,9 @@ int main(int argc, char *argv[])
     Gio::init();
 
     std::optional<Arguments> arguments = Arguments::parse(argc, argv, std::cout);
-    if (!arguments)
+    if (!arguments) {
         return EXIT_FAILURE;
+    }
 
     if (arguments->print_version_and_exit) {
         std::cout << Glib::get_prgname() << " " << ConnectivityManager::Common::VERSION << '\n';

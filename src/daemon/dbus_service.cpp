@@ -32,8 +32,9 @@ namespace ConnectivityManager::Daemon
 
     void DBusService::own_name()
     {
-        if (connection_id_ != 0)
+        if (connection_id_ != 0) {
             return;
+        }
 
         connection_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SYSTEM,
                                              Common::DBus::MANAGER_SERVICE_NAME,
@@ -44,8 +45,9 @@ namespace ConnectivityManager::Daemon
 
     void DBusService::unown_name()
     {
-        if (connection_id_ == 0)
+        if (connection_id_ == 0) {
             return;
+        }
 
         backend_signal_handler_.reset();
 
@@ -92,14 +94,17 @@ namespace ConnectivityManager::Daemon
 
         wifi_access_points_.clear();
 
-        for (const auto &[id, backend_ap] : backend_.state().wifi.access_points)
+        for (const auto &[id, backend_ap] : backend_.state().wifi.access_points) {
             wifi_access_points_.emplace(id, std::make_unique<WiFiAccessPoint>(backend_ap));
+        }
 
         bool all_registered = true;
 
-        for (const auto &key_value : wifi_access_points_)
-            if (!key_value.second->register_object(connection_))
+        for (const auto &key_value : wifi_access_points_) {
+            if (!key_value.second->register_object(connection_)) {
                 all_registered = false;
+            }
+        }
 
         return all_registered;
     }
@@ -108,8 +113,9 @@ namespace ConnectivityManager::Daemon
     {
         std::vector<Glib::DBusObjectPathString> paths;
 
-        for (const auto &key_value : wifi_access_points_)
+        for (const auto &key_value : wifi_access_points_) {
             paths.emplace_back(key_value.second->object_path());
+        }
 
         // TODO: Sorted in order suitable to present to user, by strength etc.
         //

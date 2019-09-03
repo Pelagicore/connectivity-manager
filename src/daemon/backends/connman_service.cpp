@@ -52,14 +52,17 @@ namespace ConnectivityManager::Daemon
 
         ConnManService::Type type_from_string(const Glib::ustring &str)
         {
-            if (str == TYPE_STR_BLUETOOTH)
+            if (str == TYPE_STR_BLUETOOTH) {
                 return ConnManService::Type::BLUETOOTH;
+            }
 
-            if (str == TYPE_STR_ETHERNET)
+            if (str == TYPE_STR_ETHERNET) {
                 return ConnManService::Type::ETHERNET;
+            }
 
-            if (str == TYPE_STR_WIFI)
+            if (str == TYPE_STR_WIFI) {
                 return ConnManService::Type::WIFI;
+            }
 
             return ConnManService::Type::UNKNOWN;
         }
@@ -82,17 +85,21 @@ namespace ConnectivityManager::Daemon
         std::optional<Backend::WiFiSecurity> wifi_security_from_security_string(
             const Glib::ustring &str)
         {
-            if (str == SECURITY_STR_NONE)
+            if (str == SECURITY_STR_NONE) {
                 return Backend::WiFiSecurity::NONE;
+            }
 
-            if (str == SECURITY_STR_WEP)
+            if (str == SECURITY_STR_WEP) {
                 return Backend::WiFiSecurity::WEP;
+            }
 
-            if (str == SECURITY_STR_WPA_PSK)
+            if (str == SECURITY_STR_WPA_PSK) {
                 return Backend::WiFiSecurity::WPA_PSK;
+            }
 
-            if (str == SECURITY_STR_WPA_EAP)
+            if (str == SECURITY_STR_WPA_EAP) {
                 return Backend::WiFiSecurity::WPA_EAP;
+            }
 
             return {};
         }
@@ -113,26 +120,33 @@ namespace ConnectivityManager::Daemon
 
         ConnManService::State state_from_string(const Glib::ustring &str)
         {
-            if (str == STATE_STR_IDLE)
+            if (str == STATE_STR_IDLE) {
                 return ConnManService::State::IDLE;
+            }
 
-            if (str == STATE_STR_FAILURE)
+            if (str == STATE_STR_FAILURE) {
                 return ConnManService::State::FAILURE;
+            }
 
-            if (str == STATE_STR_ASSOCIATION)
+            if (str == STATE_STR_ASSOCIATION) {
                 return ConnManService::State::ASSOCIATION;
+            }
 
-            if (str == STATE_STR_CONFIGURATION)
+            if (str == STATE_STR_CONFIGURATION) {
                 return ConnManService::State::CONFIGURATION;
+            }
 
-            if (str == STATE_STR_READY)
+            if (str == STATE_STR_READY) {
                 return ConnManService::State::READY;
+            }
 
-            if (str == STATE_STR_DISCONNECT)
+            if (str == STATE_STR_DISCONNECT) {
                 return ConnManService::State::DISCONNECT;
+            }
 
-            if (str == STATE_STR_ONLINE)
+            if (str == STATE_STR_ONLINE) {
                 return ConnManService::State::ONLINE;
+            }
 
             g_warning(R"(Received unknown ConnMan service state "%s", defaulting to "idle")",
                       str.c_str());
@@ -143,8 +157,9 @@ namespace ConnectivityManager::Daemon
         std::optional<ConnManService::State> state_from_string(
             const std::optional<Glib::ustring> &str)
         {
-            if (!str)
+            if (!str) {
                 return {};
+            }
             return state_from_string(*str);
         }
 
@@ -156,8 +171,9 @@ namespace ConnectivityManager::Daemon
 
         std::optional<ConnManService::Strength> strength_from_uint8(std::optional<std::uint8_t> i)
         {
-            if (!i)
+            if (!i) {
                 return {};
+            }
             return strength_from_uint8(*i);
         }
 
@@ -181,8 +197,9 @@ namespace ConnectivityManager::Daemon
                                   const T &default_value)
         {
             auto i = properties.find(name);
-            if (i == properties.cend())
+            if (i == properties.cend()) {
                 return default_value;
+            }
 
             return value_from_variant<T>(i->second, name).value_or(default_value);
         }
@@ -234,21 +251,24 @@ namespace ConnectivityManager::Daemon
 
     void ConnManService::properties_changed(const PropertyMap &properties)
     {
-        for (const auto &[name, value] : properties)
+        for (const auto &[name, value] : properties) {
             property_changed(name, value);
+        }
     }
 
     void ConnManService::property_changed(const Glib::ustring &property_name,
                                           const Glib::VariantBase &value)
     {
         auto changed = [this](auto &property, PropertyId id, auto received) {
-            if (!received || property == *received)
+            if (!received || property == *received) {
                 return;
+            }
 
             property = std::move(*received);
 
-            if (proxy_)
+            if (proxy_) {
                 listener_.service_property_changed(*this, id);
+            }
         };
 
         if (property_name == PROPERTY_NAME_NAME) {

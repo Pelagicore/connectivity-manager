@@ -46,27 +46,31 @@ namespace ConnectivityManager::Daemon
             }
         }
 
-        for (auto &finished_callback : finished_callbacks)
+        for (auto &finished_callback : finished_callbacks) {
             finished_callback(Backend::ConnectResult::FAILED);
+        }
     }
 
     void ConnManConnectQueue::fail_all_and_clear()
     {
-        if (entries_.empty())
+        if (entries_.empty()) {
             return;
+        }
 
         std::deque<Entry> entries_to_fail = std::move(entries_); // Callbacks can modify entries_.
 
-        for (const auto &entry : entries_to_fail)
+        for (const auto &entry : entries_to_fail) {
             entry.finished(Backend::ConnectResult::FAILED);
+        }
 
         entries_ = std::deque<Entry>();
     }
 
     void ConnManConnectQueue::connect_if_not_empty()
     {
-        if (entries_.empty())
+        if (entries_.empty()) {
             return;
+        }
 
         Entry &entry = entries_.front();
 

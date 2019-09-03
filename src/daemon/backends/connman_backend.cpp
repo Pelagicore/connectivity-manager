@@ -64,8 +64,9 @@ namespace ConnectivityManager::Daemon
 
     void ConnManBackend::wifi_technology_removed()
     {
-        if (!wifi_technology_)
+        if (!wifi_technology_) {
             return;
+        }
 
         wifi_technology_ = nullptr;
         wifi_service_to_ap_id_.clear();
@@ -81,8 +82,9 @@ namespace ConnectivityManager::Daemon
         case ConnManTechnology::PropertyId::POWERED:
             wifi_status_set(wifi_technology_->powered() ? WiFiStatus::ENABLED :
                                                           WiFiStatus::DISABLED);
-            if (wifi_technology_->powered())
+            if (wifi_technology_->powered()) {
                 wifi_technology_->scan();
+            }
             break;
         case ConnManTechnology::PropertyId::TETHERING:
             wifi_hotspot_status_set(wifi_technology_->tethering() ? WiFiHotspotStatus::ENABLED :
@@ -101,16 +103,18 @@ namespace ConnectivityManager::Daemon
 
     void ConnManBackend::wifi_enable()
     {
-        if (!wifi_technology_)
+        if (!wifi_technology_) {
             return;
+        }
 
         wifi_technology_->set_powered(true);
     }
 
     void ConnManBackend::wifi_disable()
     {
-        if (!wifi_technology_)
+        if (!wifi_technology_) {
             return;
+        }
 
         wifi_technology_->set_powered(false);
     }
@@ -135,44 +139,50 @@ namespace ConnectivityManager::Daemon
 
     void ConnManBackend::wifi_disconnect(const WiFiAccessPoint &access_point)
     {
-        if (!wifi_technology_)
+        if (!wifi_technology_) {
             return;
+        }
 
         ConnManService *service = service_from_wifi_ap(access_point);
-        if (!service)
+        if (!service) {
             return;
+        }
 
         service->disconnect();
     }
 
     void ConnManBackend::wifi_hotspot_enable()
     {
-        if (!wifi_technology_)
+        if (!wifi_technology_) {
             return;
+        }
 
         wifi_technology_->set_tethering(true);
     }
 
     void ConnManBackend::wifi_hotspot_disable()
     {
-        if (!wifi_technology_)
+        if (!wifi_technology_) {
             return;
+        }
 
         wifi_technology_->set_tethering(false);
     }
 
     void ConnManBackend::wifi_hotspot_change_ssid(const std::string &ssid)
     {
-        if (!wifi_technology_)
+        if (!wifi_technology_) {
             return;
+        }
 
         wifi_technology_->set_tethering_identifier(Common::string_to_valid_utf8(ssid));
     }
 
     void ConnManBackend::wifi_hotspot_change_passphrase(const Glib::ustring &passphrase)
     {
-        if (!wifi_technology_)
+        if (!wifi_technology_) {
             return;
+        }
 
         wifi_technology_->set_tethering_passphrase(passphrase);
     }
@@ -209,13 +219,15 @@ namespace ConnectivityManager::Daemon
     void ConnManBackend::manager_technology_remove(const Glib::DBusObjectPathString &path)
     {
         auto i = technologies_.find(path);
-        if (i == technologies_.cend())
+        if (i == technologies_.cend()) {
             return;
+        }
 
         const ConnManTechnology &technology = i->second;
 
-        if (&technology == wifi_technology_)
+        if (&technology == wifi_technology_) {
             wifi_technology_removed();
+        }
 
         technologies_.erase(i);
     }
@@ -237,8 +249,9 @@ namespace ConnectivityManager::Daemon
     void ConnManBackend::manager_service_remove(const Glib::DBusObjectPathString &path)
     {
         auto i = services_.find(path);
-        if (i == services_.cend())
+        if (i == services_.cend()) {
             return;
+        }
 
         ConnManService &service = i->second;
 
@@ -288,10 +301,11 @@ namespace ConnectivityManager::Daemon
             // TODO: Is this an OK way to detect a hidden network? Think it is (does not seem to be
             //       a better way in the service D-Bus API) but should test. Connecting to hidden
             //       WiFi network has not been tested at all.
-            if (!service.name().empty())
+            if (!service.name().empty()) {
                 requested.description_type = Requested::TYPE_WIRELESS_NETWORK;
-            else
+            } else {
                 requested.description_type = Requested::TYPE_HIDDEN_WIRELESS_NETWORK;
+            }
         } else {
             requested.description_type = Requested::TYPE_NETWORK;
         }
@@ -319,15 +333,17 @@ namespace ConnectivityManager::Daemon
 
     void ConnManBackend::technology_proxy_created(ConnManTechnology &technology)
     {
-        if (technology.type() == ConnManTechnology::Type::WIFI)
+        if (technology.type() == ConnManTechnology::Type::WIFI) {
             wifi_technology_ready(technology);
+        }
     }
 
     void ConnManBackend::technology_property_changed(ConnManTechnology &technology,
                                                      ConnManTechnology::PropertyId id)
     {
-        if (&technology == wifi_technology_)
+        if (&technology == wifi_technology_) {
             wifi_technology_property_changed(id);
+        }
     }
 
     void ConnManBackend::service_proxy_created(ConnManService &service)
@@ -384,14 +400,16 @@ namespace ConnectivityManager::Daemon
         connect_queue_.enqueue(
             service, std::move(finished), std::move(request_credentials), agent_registered);
 
-        if (!agent_registered)
+        if (!agent_registered) {
             agent_register();
+        }
     }
 
     ConnManBackend::WiFiAccessPoint *ConnManBackend::service_to_wifi_ap(ConnManService &service)
     {
-        if (service.type() != ConnManService::Type::WIFI)
+        if (service.type() != ConnManService::Type::WIFI) {
             return nullptr;
+        }
 
         auto i = wifi_service_to_ap_id_.find(&service);
 
@@ -400,9 +418,11 @@ namespace ConnectivityManager::Daemon
 
     ConnManService *ConnManBackend::service_from_wifi_ap(const WiFiAccessPoint &ap)
     {
-        for (auto &[service, id] : wifi_service_to_ap_id_)
-            if (ap.id == id)
+        for (auto &[service, id] : wifi_service_to_ap_id_) {
+            if (ap.id == id) {
                 return service;
+            }
+        }
 
         return nullptr;
     }

@@ -17,22 +17,27 @@ namespace ConnectivityManager::Common
 {
     std::optional<std::uint64_t> string_to_uint64(const std::string &str)
     {
-        if (str.empty() || !(str[0] >= '0' && str[0] <= '9'))
+        if (str.empty() || !(str[0] >= '0' && str[0] <= '9')) {
             return {}; // std::strtoull() negates if '-' and allows leading ' '. Disallow.
+        }
 
         char *end;
         constexpr int BASE = 10;
         unsigned long long value = std::strtoull(str.c_str(), &end, BASE);
 
-        if (value == ULLONG_MAX && errno == ERANGE)
+        if (value == ULLONG_MAX && errno == ERANGE) {
             return {};
+        }
 
-        if (end == str.c_str() || end != str.c_str() + str.length())
+        if (end == str.c_str() || end != str.c_str() + str.length()) {
             return {};
+        }
 
-        if (sizeof(value) > sizeof(std::uint64_t))
-            if (value > std::numeric_limits<std::uint64_t>::max())
+        if (sizeof(value) > sizeof(std::uint64_t)) {
+            if (value > std::numeric_limits<std::uint64_t>::max()) {
                 return {};
+            }
+        }
 
         return value;
     }

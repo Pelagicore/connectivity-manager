@@ -28,8 +28,9 @@ namespace ConnectivityManager::Daemon
 
             argv.reserve(argv_strs.size());
 
-            for (auto &argv_str : argv_strs)
+            for (auto &argv_str : argv_strs) {
                 argv.push_back(argv_str.data());
+            }
 
             return Arguments::parse(argv.size(), argv.data(), output);
         }

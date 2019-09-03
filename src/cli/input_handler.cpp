@@ -24,15 +24,17 @@ namespace ConnectivityManager::Cli
             std::string prompt = what;
             std::string result;
 
-            if (!default_value.empty())
+            if (!default_value.empty()) {
                 prompt += " (default: \"" + default_value + "\")";
+            }
             prompt += ": ";
 
             std::cout << prompt;
             std::getline(std::cin, result);
 
-            if (result.empty())
+            if (result.empty()) {
                 result = default_value;
+            }
 
             return result;
         }
@@ -69,8 +71,9 @@ namespace ConnectivityManager::Cli
     bool InputHandler::register_user_input_agent(
         const Glib::RefPtr<Gio::DBus::Connection> &connection)
     {
-        if (user_input_agent_.usage_count() == 0)
+        if (user_input_agent_.usage_count() == 0) {
             user_input_agent_.register_object(connection, user_input_agent_object_path());
+        }
 
         return user_input_agent_.usage_count() != 0;
     }
@@ -99,15 +102,18 @@ namespace ConnectivityManager::Cli
         Common::Credentials credentials;
 
         std::cout << "Enter credentials for " << description_type;
-        if (!description_id.empty())
+        if (!description_id.empty()) {
             std::cout << " " << description_id;
+        }
         std::cout << '\n';
 
-        if (requested.ssid)
+        if (requested.ssid) {
             credentials.ssid = prompt_for_value("SSID", *requested.ssid);
+        }
 
-        if (requested.username)
+        if (requested.username) {
             credentials.username = prompt_for_value("Username", *requested.username);
+        }
 
         if (requested.password) {
             auto type = requested.password->type;
@@ -115,8 +121,9 @@ namespace ConnectivityManager::Cli
             const std::string want_alternative_str = "a";
 
             std::string what = "Password (" + password_type_str(type);
-            if (alternative_available)
+            if (alternative_available) {
                 what += ", '" + want_alternative_str + "' to use alternative";
+            }
             what += ")";
 
             Glib::ustring value = prompt_for_value(what, requested.password->value);

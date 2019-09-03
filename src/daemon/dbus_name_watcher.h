@@ -43,8 +43,9 @@ namespace ConnectivityManager::Daemon
 
         ~DBusNameWatcher()
         {
-            if (watch_id_ != 0)
+            if (watch_id_ != 0) {
                 Gio::DBus::unwatch_name(watch_id_);
+            }
         }
 
         DBusNameWatcher &operator=(const DBusNameWatcher &other) = delete;
