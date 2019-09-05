@@ -93,7 +93,7 @@ namespace ConnectivityManager::Daemon
             };
 
             using Id = std::uint64_t;
-            using Strength = std::uint8_t; // 0-100
+            using Strength = std::uint8_t; // 0-100 (in percent)
 
             static constexpr Id ID_EMPTY = 0;
 

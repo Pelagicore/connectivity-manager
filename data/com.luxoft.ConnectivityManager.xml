@@ -192,7 +192,7 @@
   -->
   <interface name="com.luxoft.ConnectivityManager.WiFiAccessPoint">
     <property name="SSID" type="ay" access="read"/>
-    <property name="Strength" type="y" access="read"/> <!-- Range: 0-100 -->
+    <property name="Strength" type="y" access="read"/> <!-- Range: 0-100 (in percent) -->
     <property name="Connected" type="b" access="read"/>
   </interface>
 
