@@ -179,16 +179,31 @@
       Interface for Wi-Fi access points implemented by objects in
       WiFiAccessPoints property.
 
-      TODO: Replace "Connected" with "State" (type="s")? If yes, check
-            NetworkManager and ConnMan for what makes sense. What do we
-            want/need? Enough with "disconnected", "connecting", "connected"?
-
       TODO: Add a "Security" (type="s") property for wireless security. Check
             NetworkManager and ConnMan for what makes sense.
   -->
   <interface name="com.luxoft.ConnectivityManager.WiFiAccessPoint">
+    <!--
+        SSID/Name of access point.
+
+        Byte array since SSID:s are not necessarily in UTF-8.
+    -->
     <property name="SSID" type="ay" access="read"/>
-    <property name="Strength" type="y" access="read"/> <!-- Range: 0-100 (in percent) -->
+
+    <!--
+        Signal strength.
+
+        Range: 0-100 (in percent).
+    -->
+    <property name="Strength" type="y" access="read"/>
+
+    <!--
+        Connection state of access point.
+
+        TODO: Replace "Connected" with "State" (type="s")? If yes, check
+              NetworkManager and ConnMan for what makes sense. What do we
+              want/need? Enough with "disconnected", "connecting", "connected"?
+    -->
     <property name="Connected" type="b" access="read"/>
   </interface>
 
