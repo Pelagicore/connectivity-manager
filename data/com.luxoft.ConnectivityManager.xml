@@ -182,10 +182,6 @@
       TODO: Replace "Connected" with "State" (type="s")? If yes, check
             NetworkManager and ConnMan for what makes sense. What do we
             want/need? Enough with "disconnected", "connecting", "connected"?
-            Enough with UI calling Connect() to indicate within itself that
-            it is connecting until Connect() returns and only have this boolean
-            to show marker in AP list ("State" superfluous)? If so, leave as is
-            and just remove this TODO.
 
       TODO: Add a "Security" (type="s") property for wireless security. Check
             NetworkManager and ConnMan for what makes sense.
