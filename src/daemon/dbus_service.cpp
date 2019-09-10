@@ -28,7 +28,6 @@ namespace ConnectivityManager::Daemon
     DBusService::~DBusService()
     {
         unown_name();
-        wifi_access_points_throttle_set_property_timeout_.disconnect();
     }
 
     void DBusService::own_name()
@@ -105,22 +104,6 @@ namespace ConnectivityManager::Daemon
         return all_registered;
     }
 
-    void DBusService::wifi_access_points_changed()
-    {
-        constexpr unsigned int DELAY_SECONDS = 1;
-        constexpr bool REPEAT = false;
-
-        if (wifi_access_points_throttle_set_property_timeout_.connected())
-            return;
-
-        wifi_access_points_throttle_set_property_timeout_ = Glib::signal_timeout().connect_seconds(
-            [&] {
-                manager_.WiFiAccessPoints_set(wifi_access_point_paths_sorted());
-                return REPEAT;
-            },
-            DELAY_SECONDS);
-    }
-
     std::vector<Glib::DBusObjectPathString> DBusService::wifi_access_point_paths_sorted() const
     {
         std::vector<Glib::DBusObjectPathString> paths;
@@ -134,16 +117,15 @@ namespace ConnectivityManager::Daemon
         //
         // Have "std::vector<WiFiAccessPoint::Id> wifi.access_points_sorted" in Backend::State (or
         // pointers to elements in wifi.access_points, elements will not move). If in Backend it
-        // will be easier to test. Could also add a "SORTED_CHANGED" entry in
-        // Backend::WiFiAccessPoint::Event and only call DBusService::wifi_access_points_changed()
-        // when that event is received instead of listening to all events that may change order
-        // (prevents abstraction leak... if logic changes, e.g. another field affects order, one
-        // would have to listen to extra events outside of Backend, better with explicit "sort order
-        // changed" event).
+        // will be easier to test. Could also add e.g. a "SORT_ORDER_CHANGED" entry in
+        // Backend::WiFiAccessPoint::Event and only update paths property when that event is
+        // received instead of listening to all events that may change order (prevents abstraction
+        // leak... if logic changes, e.g. another field affects order, one would have to listen to
+        // extra events outside of Backend, better with explicit "sort order changed" event).
         //
-        // If sorting should be handled in DBusService, wifi_access_points_changed() must be called
-        // on more Backend::WiFiAccessPoint::Event:s than now. But, leaning towards handling sorting
-        // in Backend as mentioned above so unit tests can be added for it more easily.
+        // If sorting should be handled in DBusService, property must be set on more
+        // Backend::WiFiAccessPoint::Event:s than now. But, leaning towards handling sorting in
+        // Backend as mentioned above so unit tests can be added for it more easily.
 
         return paths;
     }
@@ -179,27 +161,29 @@ namespace ConnectivityManager::Daemon
         Backend::WiFiAccessPoint::Event event,
         const Backend::WiFiAccessPoint *access_point) const
     {
+        bool update_aps_property = false;
+
         switch (event) {
         case Backend::WiFiAccessPoint::Event::ADDED_ALL:
             service_.wifi_access_points_create_all_and_register_on_bus();
-            service_.wifi_access_points_changed();
+            update_aps_property = true;
             break;
 
         case Backend::WiFiAccessPoint::Event::REMOVED_ALL:
             service_.wifi_access_points_.clear();
-            service_.wifi_access_points_changed();
+            update_aps_property = true;
             break;
 
         case Backend::WiFiAccessPoint::Event::ADDED_ONE:
             service_.wifi_access_points_.emplace(access_point->id,
                                                  std::make_unique<WiFiAccessPoint>(*access_point));
             service_.wifi_access_points_[access_point->id]->register_object(service_.connection_);
-            service_.wifi_access_points_changed();
+            update_aps_property = true;
             break;
 
         case Backend::WiFiAccessPoint::Event::REMOVED_ONE:
             service_.wifi_access_points_.erase(access_point->id);
-            service_.wifi_access_points_changed();
+            update_aps_property = true;
             break;
 
         case Backend::WiFiAccessPoint::Event::SSID_CHANGED:
@@ -213,6 +197,10 @@ namespace ConnectivityManager::Daemon
         case Backend::WiFiAccessPoint::Event::CONNECTED_CHANGED:
             service_.wifi_access_points_[access_point->id]->Connected_set(access_point->connected);
             break;
+        }
+
+        if (update_aps_property) {
+            service_.manager_.WiFiAccessPoints_set(service_.wifi_access_point_paths_sorted());
         }
     }
 

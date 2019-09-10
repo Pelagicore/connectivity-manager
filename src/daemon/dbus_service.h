@@ -69,7 +69,6 @@ namespace ConnectivityManager::Daemon
                        const Glib::ustring &name);
 
         bool wifi_access_points_create_all_and_register_on_bus();
-        void wifi_access_points_changed();
         std::vector<Glib::DBusObjectPathString> wifi_access_point_paths_sorted() const;
 
         Glib::RefPtr<Glib::MainLoop> main_loop_;
@@ -82,8 +81,6 @@ namespace ConnectivityManager::Daemon
 
         Manager manager_;
         std::map<WiFiAccessPoint::Id, std::unique_ptr<WiFiAccessPoint>> wifi_access_points_;
-
-        sigc::connection wifi_access_points_throttle_set_property_timeout_;
     };
 }
 
