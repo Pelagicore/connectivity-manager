@@ -147,9 +147,9 @@
 
             Password type  Meaning
             "passphrase"   Passphrase (for e.g. 802.1x/EAP authentication).
-            "wpa_psk"      WPA PSK
-            "wep_key"      WEP key
-            "wps_pin       WPS pin
+            "wpa-psk"      WPA-PSK
+            "wep-key"      WEP key
+            "wps-pin       WPS pin
 
         "password_alternative"
             Password alternative. Value type: (ss)

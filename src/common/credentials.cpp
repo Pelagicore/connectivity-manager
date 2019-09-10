@@ -26,9 +26,9 @@ namespace ConnectivityManager::Common
 
         // Must match password type strings in UserInputAgent D-Bus interface.
         constexpr char PASSWORD_TYPE_PASSPHRASE_STR[] = "passphrase";
-        constexpr char PASSWORD_TYPE_WPA_PSK_STR[] = "wpa_psk";
-        constexpr char PASSWORD_TYPE_WEP_KEY_STR[] = "wep_key";
-        constexpr char PASSWORD_TYPE_WPS_PIN_STR[] = "wps_pin";
+        constexpr char PASSWORD_TYPE_WPA_PSK_STR[] = "wpa-psk";
+        constexpr char PASSWORD_TYPE_WEP_KEY_STR[] = "wep-key";
+        constexpr char PASSWORD_TYPE_WPS_PIN_STR[] = "wps-pin";
 
         using PasswordDBusValue = std::tuple<Glib::ustring, Glib::ustring>;
 
