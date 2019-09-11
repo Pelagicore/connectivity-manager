@@ -41,6 +41,8 @@ namespace ConnectivityManager::Daemon
             return WiFiAccessPointStub::register_object(connection, object_path()) != 0;
         }
 
+        void security_set(Backend::WiFiSecurity security);
+
     private:
         bool SSID_setHandler(const std::string &value) override;
         std::string SSID_get() override;
@@ -51,12 +53,16 @@ namespace ConnectivityManager::Daemon
         bool Connected_setHandler(bool value) override;
         bool Connected_get() override;
 
+        bool Security_setHandler(const Glib::ustring &value) override;
+        Glib::ustring Security_get() override;
+
         static Glib::ustring object_path_prefix();
 
         Id id_ = 0;
         std::string ssid_;
         guchar strength_ = 0;
         bool connected_ = false;
+        Glib::ustring security_;
     };
 }
 

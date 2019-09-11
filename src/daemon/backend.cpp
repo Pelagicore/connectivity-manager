@@ -145,6 +145,17 @@ namespace ConnectivityManager::Daemon
                                                  &access_point);
     }
 
+    void Backend::wifi_access_point_security_set(WiFiAccessPoint &access_point,
+                                                 WiFiSecurity security)
+    {
+        if (access_point.security == security)
+            return;
+
+        access_point.security = security;
+        signals_.wifi.access_points_changed.emit(WiFiAccessPoint::Event::SECURITY_CHANGED,
+                                                 &access_point);
+    }
+
     void Backend::wifi_hotspot_status_set(WiFiHotspotStatus status)
     {
         if (state_.wifi.hotspot_status == status)

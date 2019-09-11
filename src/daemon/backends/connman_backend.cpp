@@ -37,6 +37,7 @@ namespace ConnectivityManager::Daemon
                     ap.ssid = service.name();
                     ap.strength = service.strength();
                     ap.connected = service.state_to_connected();
+                    ap.security = service.security_to_wifi_security();
 
                     wifi_service_to_ap_id_.emplace(&service, ap.id);
                 }
@@ -338,6 +339,7 @@ namespace ConnectivityManager::Daemon
             ap.ssid = service.name();
             ap.strength = service.strength();
             ap.connected = service.state_to_connected();
+            ap.security = service.security_to_wifi_security();
 
             wifi_service_to_ap_id_.emplace(&service, ap.id);
 
@@ -352,6 +354,9 @@ namespace ConnectivityManager::Daemon
             switch (id) {
             case ConnManService::PropertyId::NAME:
                 wifi_access_point_ssid_set(*ap, service.name());
+                break;
+            case ConnManService::PropertyId::SECURITY:
+                wifi_access_point_security_set(*ap, service.security_to_wifi_security());
                 break;
             case ConnManService::PropertyId::STATE:
                 wifi_access_point_connected_set(*ap, service.state_to_connected());

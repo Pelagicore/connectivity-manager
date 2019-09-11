@@ -18,11 +18,30 @@
 
 namespace ConnectivityManager::Daemon
 {
+    namespace
+    {
+        Glib::ustring wifi_security_to_str(Backend::WiFiSecurity security)
+        {
+            switch (security) {
+            case Backend::WiFiSecurity::NONE:
+                return "";
+            case Backend::WiFiSecurity::WEP:
+                return "wep";
+            case Backend::WiFiSecurity::WPA_PSK:
+                return "wpa-psk";
+            case Backend::WiFiSecurity::WPA_EAP:
+                return "wpa-eap";
+            }
+            return "";
+        }
+    }
+
     WiFiAccessPoint::WiFiAccessPoint(const Backend::WiFiAccessPoint &backend_ap) :
         id_(backend_ap.id),
         ssid_(backend_ap.ssid),
         strength_(backend_ap.strength),
-        connected_(backend_ap.connected)
+        connected_(backend_ap.connected),
+        security_(wifi_security_to_str(backend_ap.security))
     {
     }
 
@@ -86,5 +105,23 @@ namespace ConnectivityManager::Daemon
     bool WiFiAccessPoint::Connected_get()
     {
         return connected_;
+    }
+
+    void WiFiAccessPoint::security_set(Backend::WiFiSecurity security)
+    {
+        Security_set(wifi_security_to_str(security));
+    }
+
+    bool WiFiAccessPoint::Security_setHandler(const Glib::ustring &value)
+    {
+        bool changed = security_ != value;
+        security_ = value;
+
+        return changed;
+    }
+
+    Glib::ustring WiFiAccessPoint::Security_get()
+    {
+        return security_;
     }
 }

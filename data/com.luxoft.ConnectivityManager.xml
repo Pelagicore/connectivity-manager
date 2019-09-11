@@ -205,6 +205,17 @@
               want/need? Enough with "disconnected", "connecting", "connected"?
     -->
     <property name="Connected" type="b" access="read"/>
+
+    <!--
+        Security mode.
+
+        Value      Meaning
+        ""         No security.
+        "wep"      WEP.
+        "wpa-psk"  WPA-PSK (WPA-Personal).
+        "wpa-eap"  WPA-EAP (WPA-Enterprise/WPA-802.1X).
+    -->
+    <property name="Security" type="s" access="read"/>
   </interface>
 
 </node>

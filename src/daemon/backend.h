@@ -78,6 +78,14 @@ namespace ConnectivityManager::Daemon
             ENABLED
         };
 
+        enum class WiFiSecurity
+        {
+            NONE,
+            WEP,
+            WPA_PSK,
+            WPA_EAP
+        };
+
         struct WiFiAccessPoint
         {
             enum class Event
@@ -89,7 +97,8 @@ namespace ConnectivityManager::Daemon
 
                 SSID_CHANGED,
                 STRENGTH_CHANGED,
-                CONNECTED_CHANGED
+                CONNECTED_CHANGED,
+                SECURITY_CHANGED
             };
 
             using Id = std::uint64_t;
@@ -101,6 +110,7 @@ namespace ConnectivityManager::Daemon
             std::string ssid;
             Strength strength = 0;
             bool connected = false;
+            WiFiSecurity security = WiFiSecurity::NONE;
         };
 
         struct State
@@ -209,6 +219,7 @@ namespace ConnectivityManager::Daemon
         void wifi_access_point_strength_set(WiFiAccessPoint &access_point,
                                             WiFiAccessPoint::Strength strength);
         void wifi_access_point_connected_set(WiFiAccessPoint &access_point, bool connected);
+        void wifi_access_point_security_set(WiFiAccessPoint &access_point, WiFiSecurity security);
 
         void wifi_hotspot_status_set(WiFiHotspotStatus status);
         void wifi_hotspot_ssid_set(const std::string &ssid);

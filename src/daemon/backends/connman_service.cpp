@@ -24,6 +24,7 @@ namespace ConnectivityManager::Daemon
     {
         constexpr char PROPERTY_NAME_TYPE[] = "Type";
         constexpr char PROPERTY_NAME_NAME[] = "Name";
+        constexpr char PROPERTY_NAME_SECURITY[] = "Security";
         constexpr char PROPERTY_NAME_STATE[] = "State";
         constexpr char PROPERTY_NAME_STRENGTH[] = "Strength";
 
@@ -33,6 +34,13 @@ namespace ConnectivityManager::Daemon
         constexpr char TYPE_STR_BLUETOOTH[] = "bluetooth";
         constexpr char TYPE_STR_ETHERNET[] = "ethernet";
         constexpr char TYPE_STR_WIFI[] = "wifi";
+
+        constexpr char SECURITY_STR_NONE[] = "none";
+        constexpr char SECURITY_STR_WEP[] = "wep";
+        constexpr char SECURITY_STR_WPA_PSK[] = "psk";
+        constexpr char SECURITY_STR_WPA_EAP[] = "ieee8021x";
+        // constexpr char SECURITY_STR_WPS[] = "wps";
+        // constexpr char SECURITY_STR_WPS_ADVERTISING[] = "wps_advertising";
 
         constexpr char STATE_STR_IDLE[] = "idle";
         constexpr char STATE_STR_FAILURE[] = "failure";
@@ -69,6 +77,38 @@ namespace ConnectivityManager::Daemon
                 return TYPE_STR_WIFI;
             }
             return "unknown";
+        }
+
+        std::optional<Backend::WiFiSecurity> wifi_security_from_security_string(
+            const Glib::ustring &str)
+        {
+            if (str == SECURITY_STR_NONE)
+                return Backend::WiFiSecurity::NONE;
+
+            if (str == SECURITY_STR_WEP)
+                return Backend::WiFiSecurity::WEP;
+
+            if (str == SECURITY_STR_WPA_PSK)
+                return Backend::WiFiSecurity::WPA_PSK;
+
+            if (str == SECURITY_STR_WPA_EAP)
+                return Backend::WiFiSecurity::WPA_EAP;
+
+            return {};
+        }
+
+        Glib::ustring security_to_string(const ConnManService::Security &security)
+        {
+            Glib::ustring ret;
+
+            for (const Glib::ustring &str : security) {
+                if (!ret.empty()) {
+                    ret += ", ";
+                }
+                ret += str;
+            }
+
+            return ret;
         }
 
         ConnManService::State state_from_string(const Glib::ustring &str)
@@ -155,6 +195,7 @@ namespace ConnectivityManager::Daemon
         type_(type_from_string(
             value_from_property_map<Glib::ustring>(properties, PROPERTY_NAME_TYPE, ""))),
         name_(value_from_property_map<Glib::ustring>(properties, PROPERTY_NAME_NAME, "")),
+        security_(value_from_property_map<Security>(properties, PROPERTY_NAME_SECURITY, {})),
         state_(state_from_string(value_from_property_map<Glib::ustring>(properties,
                                                                         PROPERTY_NAME_STATE,
                                                                         STATE_STR_IDLE))),
@@ -214,6 +255,11 @@ namespace ConnectivityManager::Daemon
             changed(
                 name_, PropertyId::NAME, value_from_variant<Glib::ustring>(value, property_name));
 
+        } else if (property_name == PROPERTY_NAME_SECURITY) {
+            changed(security_,
+                    PropertyId::SECURITY,
+                    value_from_variant<Security>(value, property_name));
+
         } else if (property_name == PROPERTY_NAME_STATE) {
             changed(state_,
                     PropertyId::STATE,
@@ -232,6 +278,23 @@ namespace ConnectivityManager::Daemon
         } else {
             // Many properties are left out, does not make sense to log "unknown property".
         }
+    }
+
+    Backend::WiFiSecurity ConnManService::security_to_wifi_security() const
+    {
+        for (const Glib::ustring &str : security_) {
+            auto wifi_security = wifi_security_from_security_string(str);
+
+            if (wifi_security) {
+                return *wifi_security;
+            }
+        }
+
+        g_warning("Failed to convert security (%s) for %s to Wi-Fi security",
+                  security_to_string(security_).c_str(),
+                  log_id_str().c_str());
+
+        return Backend::WiFiSecurity::NONE;
     }
 
     void ConnManService::connect()

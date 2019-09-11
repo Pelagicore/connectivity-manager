@@ -197,6 +197,10 @@ namespace ConnectivityManager::Daemon
         case Backend::WiFiAccessPoint::Event::CONNECTED_CHANGED:
             service_.wifi_access_points_[access_point->id]->Connected_set(access_point->connected);
             break;
+
+        case Backend::WiFiAccessPoint::Event::SECURITY_CHANGED:
+            service_.wifi_access_points_[access_point->id]->security_set(access_point->security);
+            break;
         }
 
         if (update_aps_property) {
