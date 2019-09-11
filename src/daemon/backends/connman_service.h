@@ -95,6 +95,11 @@ namespace ConnectivityManager::Daemon
             return state_;
         }
 
+        bool state_to_connected() const
+        {
+            return state_ == State::READY || state_ == State::ONLINE;
+        }
+
         Strength strength() const
         {
             return strength_;
