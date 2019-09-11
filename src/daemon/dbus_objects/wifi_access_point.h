@@ -41,6 +41,7 @@ namespace ConnectivityManager::Daemon
             return WiFiAccessPointStub::register_object(connection, object_path()) != 0;
         }
 
+    private:
         bool SSID_setHandler(const std::string &value) override;
         std::string SSID_get() override;
 
@@ -50,7 +51,6 @@ namespace ConnectivityManager::Daemon
         bool Connected_setHandler(bool value) override;
         bool Connected_get() override;
 
-    private:
         static Glib::ustring object_path_prefix();
 
         Id id_ = 0;

@@ -32,32 +32,6 @@ namespace ConnectivityManager::Daemon
 
         void sync_with_backend(std::vector<Glib::DBusObjectPathString> &&wifi_access_points);
 
-        void Connect(const Glib::DBusObjectPathString &object,
-                     const Glib::DBusObjectPathString &user_input_agent,
-                     MethodInvocation &invocation) override;
-
-        void Disconnect(const Glib::DBusObjectPathString &object,
-                        MethodInvocation &invocation) override;
-
-        bool WiFiAvailable_setHandler(bool value) override;
-        bool WiFiAvailable_get() override;
-
-        bool WiFiEnabled_setHandler(bool value) override;
-        bool WiFiEnabled_get() override;
-
-        bool WiFiAccessPoints_setHandler(
-            const std::vector<Glib::DBusObjectPathString> &value) override;
-        std::vector<Glib::DBusObjectPathString> WiFiAccessPoints_get() override;
-
-        bool WiFiHotspotEnabled_setHandler(bool value) override;
-        bool WiFiHotspotEnabled_get() override;
-
-        bool WiFiHotspotSSID_setHandler(const std::string &value) override;
-        std::string WiFiHotspotSSID_get() override;
-
-        bool WiFiHotspotPassphrase_setHandler(const Glib::ustring &value) override;
-        Glib::ustring WiFiHotspotPassphrase_get() override;
-
     private:
         // Information stored for calls to Connect().
         //
@@ -117,6 +91,32 @@ namespace ConnectivityManager::Daemon
         private:
             std::unordered_map<std::string, PendingConnect> map_;
         };
+
+        void Connect(const Glib::DBusObjectPathString &object,
+                     const Glib::DBusObjectPathString &user_input_agent,
+                     MethodInvocation &invocation) override;
+
+        void Disconnect(const Glib::DBusObjectPathString &object,
+                        MethodInvocation &invocation) override;
+
+        bool WiFiAvailable_setHandler(bool value) override;
+        bool WiFiAvailable_get() override;
+
+        bool WiFiEnabled_setHandler(bool value) override;
+        bool WiFiEnabled_get() override;
+
+        bool WiFiAccessPoints_setHandler(
+            const std::vector<Glib::DBusObjectPathString> &value) override;
+        std::vector<Glib::DBusObjectPathString> WiFiAccessPoints_get() override;
+
+        bool WiFiHotspotEnabled_setHandler(bool value) override;
+        bool WiFiHotspotEnabled_get() override;
+
+        bool WiFiHotspotSSID_setHandler(const std::string &value) override;
+        std::string WiFiHotspotSSID_get() override;
+
+        bool WiFiHotspotPassphrase_setHandler(const Glib::ustring &value) override;
+        Glib::ustring WiFiHotspotPassphrase_get() override;
 
         const Backend::WiFiAccessPoint *wifi_backend_ap_from_object_path(
             const Glib::DBusObjectPathString &path) const;
