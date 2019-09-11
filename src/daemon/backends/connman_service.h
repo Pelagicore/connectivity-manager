@@ -80,11 +80,25 @@ namespace ConnectivityManager::Daemon
 
         void properties_changed(const PropertyMap &properties);
 
-        Type type() const;
+        Type type() const
+        {
+            return type_;
+        }
 
-        const Glib::ustring &name() const;
-        State state() const;
-        Strength strength() const;
+        const Glib::ustring &name() const
+        {
+            return name_;
+        }
+
+        State state() const
+        {
+            return state_;
+        }
+
+        Strength strength() const
+        {
+            return strength_;
+        }
 
         void connect();
         void disconnect();

@@ -58,11 +58,20 @@ namespace ConnectivityManager::Daemon
                           const PropertyMap &properties);
         ~ConnManTechnology();
 
-        Type type() const;
+        Type type() const
+        {
+            return type_;
+        }
 
-        const Glib::ustring &name() const;
+        const Glib::ustring &name() const
+        {
+            return name_;
+        }
 
-        bool connected() const;
+        bool connected() const
+        {
+            return connected_;
+        }
 
         bool powered() const;
         void set_powered(bool powered);

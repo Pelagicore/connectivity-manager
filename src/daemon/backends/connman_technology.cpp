@@ -182,21 +182,6 @@ namespace ConnectivityManager::Daemon
         }
     }
 
-    ConnManTechnology::Type ConnManTechnology::type() const
-    {
-        return type_;
-    }
-
-    const Glib::ustring &ConnManTechnology::name() const
-    {
-        return name_;
-    }
-
-    bool ConnManTechnology::connected() const
-    {
-        return connected_;
-    }
-
     bool ConnManTechnology::powered() const
     {
         return powered_.value();

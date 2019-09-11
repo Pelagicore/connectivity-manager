@@ -234,26 +234,6 @@ namespace ConnectivityManager::Daemon
         }
     }
 
-    ConnManService::Type ConnManService::type() const
-    {
-        return type_;
-    }
-
-    const Glib::ustring &ConnManService::name() const
-    {
-        return name_;
-    }
-
-    ConnManService::State ConnManService::state() const
-    {
-        return state_;
-    }
-
-    ConnManService::Strength ConnManService::strength() const
-    {
-        return strength_;
-    }
-
     void ConnManService::connect()
     {
         constexpr int TIMEOUT_MS = 5 * 60 * 1000;
