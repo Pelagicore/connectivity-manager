@@ -298,9 +298,6 @@ namespace ConnectivityManager::Daemon
         Requested requested;
 
         if (service.type() == ConnManService::Type::WIFI) {
-            // TODO: Is this an OK way to detect a hidden network? Think it is (does not seem to be
-            //       a better way in the service D-Bus API) but should test. Connecting to hidden
-            //       WiFi network has not been tested at all.
             if (!service.name().empty()) {
                 requested.description_type = Requested::TYPE_WIRELESS_NETWORK;
             } else {
