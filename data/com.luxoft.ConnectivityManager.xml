@@ -178,9 +178,6 @@
   <!--
       Interface for Wi-Fi access points implemented by objects in
       WiFiAccessPoints property.
-
-      TODO: Add a "Security" (type="s") property for wireless security. Check
-            NetworkManager and ConnMan for what makes sense.
   -->
   <interface name="com.luxoft.ConnectivityManager.WiFiAccessPoint">
     <!--
