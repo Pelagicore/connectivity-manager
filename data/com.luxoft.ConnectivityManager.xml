@@ -166,6 +166,13 @@
         RequestCredentials() call is pending, there is no longer any need to
         prompt the user and the return value of RequestCredentials() will be
         ignored.
+
+        If the user cancels the request, or if for some reason the request can
+        not be presented to the user, an error should be returned with a message
+        explaining what happened. The generic org.freedesktop.DBus.Error.Failed
+        error may be used. All errors returned for a RequestCredentials() call
+        are currently treated the same. Error message will be logged and
+        connection attempt will be aborted.
     -->
     <method name="RequestCredentials">
       <arg name="description_type" type="s" direction="in"/>
