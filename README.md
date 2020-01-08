@@ -66,6 +66,27 @@ meson test -C build
 
 "No tests defined." is printed if the required version of googletest could not be found.
 
+Code Checking
+=============
+
+[Clang-Format](https://clang.llvm.org/docs/ClangFormat.html) and
+[Clang-Tidy](https://clang.llvm.org/extra/clang-tidy/) are used for code style checking and
+"linting". Clang's [static analyzer](https://clang-analyzer.llvm.org/) checks are run as part of
+[Clang-Tidy](https://clang.llvm.org/extra/clang-tidy/) as well. A [script](tools/check) exists to
+simplify running these tools. After building, simply run:
+
+```shell
+tools/check . build
+```
+
+Note that different versions of `clang-format` and `clang-tidy` may give different results. See
+[tools/ci/Dockerfile](tools/ci/Dockerfile) for what versions are run in the
+[CI system](tools/ci).
+
+The [CI system](tools/ci) also makes sure that the code compiles without any warnings. To turn
+warnings into errors when building locally, pass `-Dwerror=true` when invoking `meson` or
+`meson configure`.
+
 Command Line Interface
 ======================
 
