@@ -14,7 +14,7 @@ will be added.
 # Dependencies
 
 - ConnMan (if built with ConnMan backend)
-- gdbus-codgen-glibmm
+- gdbus-codegen-glibmm
 - glibmm (2.56)
 - googletest (1.8.1, for tests, optional)
 
