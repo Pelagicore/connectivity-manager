@@ -1,4 +1,5 @@
-# Connectivity Manager
+Connectivity Manager
+====================
 
 D-Bus service for managing connectivity.
 
@@ -11,14 +12,16 @@ Connectivity Manager is in early stages of development and currently only suppor
 Wi-Fi access points. In the near future support for Bluetooth, VPN, different user profiles etc.
 will be added.
 
-# Dependencies
+Dependencies
+============
 
 - ConnMan (if built with ConnMan backend)
 - [gdbus-codegen-glibmm](https://github.com/Pelagicore/gdbus-codegen-glibmm)
 - glibmm (2.56)
 - googletest (1.8.1, for tests, optional)
 
-# Building
+Building
+========
 
 [Meson](https://mesonbuild.com/) is used for building. To build simply run:
 
@@ -27,7 +30,8 @@ meson build
 ninja -C build
 ```
 
-# Running Tests
+Running Tests
+=============
 
 Tests can be run with:
 
@@ -37,7 +41,8 @@ meson test -C build
 
 "No tests defined." is printed if the required version of googletest could not be found.
 
-# Command Line Interface
+Command Line Interface
+======================
 
 `cmcli` is a command line tool that can be used to interact with the Connectivity Manager daemon. It
 was mainly developed as a means to test the D-Bus interface without a graphical UI. Help summary:
@@ -116,7 +121,8 @@ $ cmcli wifi connect --ssid AnAccessPoint
 A password will be prompted for if one is required. `cmcli` will exit when the access point has been
 connected to or an error has occurred, in which case an error message should have been printed.
 
-# License and Copyright
+License and Copyright
+=====================
 
 Copyright © 2019 Luxoft Sweden AB
 
