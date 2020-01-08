@@ -30,6 +30,31 @@ meson build
 ninja -C build
 ```
 
+Installing and Running
+======================
+
+After building, installation can be performed by running:
+
+```shell
+sudo ninja -C build install
+```
+
+By default this will install under `/usr/local`. To change this pass `--prefix` when invoking
+`meson` or `meson configure`, e.g. `meson build --prefix=/usr`.
+
+`systemctl daemon-reload` must be run for systemd to notice the newly installed service file. The
+service will now start when a D-Bus call is made to it on the system bus. It can also be started
+manually by running `systemctl start connectivity-manager`.
+
+It is possible to run the daemon directly from the build directory and on the session bus, which
+might facilitate testing and debugging during development. To do this run:
+
+```shell
+export DBUS_SYSTEM_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS
+```
+
+And then run the built daemon executable directly from the build directory.
+
 Running Tests
 =============
 
